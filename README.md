@@ -1,10 +1,10 @@
 # Kyber-mini
 Implémentation d'un mini-Kyber, mesure de performances et de sécurité
 
-*NE PAS UTILISER EN SITUATION REELLE*
+**NE PAS UTILISER EN SITUATION REELLE**
 
 test $q=F_4$ et
-$$ \int_{\mathbb{R}}e^{-x^2}dx = \sqrt{\pi} $$
+$$\int_{\mathbb{R}}e^{-x^2}dx = \sqrt{\pi}$$
 
 ## Introduction
 
