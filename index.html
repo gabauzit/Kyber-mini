@@ -18,8 +18,8 @@
     body{
       font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
       margin:0;
-      background:linear-gradient(180deg,#071025 0%, #041322 100%);
-      color:#e6eef6;
+      background:linear-gradient(180deg, #061124 0%, #0c2348 100%);
+      color:#E0E6F0;
       line-height:1.5;
     }
     .wrap { width: 100%; padding: 40px 60px; box-sizing: border-box; }
@@ -45,8 +45,10 @@
     .layout {display: grid; grid-template-columns: 260px 1fr; gap: var(--gap); min-height: 100vh;}
     nav {position: sticky; top: 20px; display: flex; flex-direction: column; justify-content: center; padding: 14px; background: var(--glass); border-radius: var(--radius); width: 260px; height: fit-content;}
     nav ul{list-style:none; padding:0; margin:0}
-    nav a{display:block; padding:10px 12px; border-radius:8px; color:var(--accent); text-decoration:none; margin-bottom:6px}
+    nav a{display:block; padding:10px 12px; border-radius:8px; color:var(--accent); text-decoration:none; margin-bottom:6px;}
     nav a.active, nav a:hover{background:var(--hover)}
+    nav a.github-link:hover {background: rgba(128,128,128,0.2);}
+    html{scroll-behavior: smooth;}
     main{padding:18px; background:var(--glass); border-radius:var(--radius)}
     section{padding:18px; margin-bottom:14px; background:var(--colsect); border-radius:10px}
     section h2{margin-top:0}
@@ -137,6 +139,7 @@
       svg: {fontCache: 'global'}
     };
   </script>
+
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
 </head>
 <body>
@@ -167,49 +170,115 @@
       <nav id="toc">
         <div class="toc-title">Table des matières</div>
         <ul>
-          <li><a href="#intro" id="link-intro">Introduction</a></li>
-          <li><a href="#math" id="link-math">Principes mathématiques</a></li>
-          <li><a href="#encrypt" id="link-encrypt">Mesures de performance</a></li>
-          <li><a href="#decrypt" id="link-decrypt">Mesures de sécurité</a></li>
-          <li><a href="#code" id="link-code">Conclusion</a></li>
+          <li><a href="#intro" id="link-intro">1. Introduction</a></li>
+          <li><a href="#math" id="link-math">2. Principes mathématiques</a></li>
+          <li><a href="#encrypt" id="link-encrypt">3. Mesures de performance</a></li>
+          <li><a href="#decrypt" id="link-decrypt">4. Mesures de sécurité</a></li>
+          <li><a href="#code" id="link-code">5. Conclusion</a></li>
+	<li><a href="https://github.com/gabauzit/Kyber-mini" target="_blank" class="github-link" style="display:flex; align-items:center; text-decoration:none; color:#999; font-weight:bold;">
+    		<img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/github.svg" alt="GitHub" width="20" height="20" style="margin-right:5px;">
+   		 GitHub
+ 		</a></li>
         </ul>
       </nav>
 
       <main>
         <section id="intro">
-          <h2>Introduction</h2>
-          <h3>Cryptographie post-quantique</h3>
+          <h2>1. Introduction</h2>
+          <h3>1.1. Cryptographie post-quantique</h3>
           <p>Enjeux de la PQC.</p>
-          <h3>Le cas de Kyber</h3>
+          <h3>1.2. Le cas de Kyber</h3>
           <p>Explication de KEM et Kyber.</p>
         </section>
 
         <section id="math">
-          <h2>Principes mathématiques</h2>
-          <h3>Problème du plus court vecteur et LWE</h3>
+          <h2>2. Principes mathématiques</h2>
+          <h3>2.1. Problème du plus court vecteur et LWE</h3>
           <p>Explications avec schémas de réseaux.</p>
-          <h3>Multiplication de polynômes avec NNT</h3>
+          <h3>2.2. Multiplication de polynômes avec NNT</h3>
           <p>Description de NNT.</p>
+<div class="theoreme">
+  <strong>Proposition 2.1.</strong> 
+  <i>Soient $a(x)=\sum_{i=0}^{n-1}a_ix^i$ et $b(x)=\sum_{i=0}^{n-1}b_ix^i$ dans $\mathcal{R}_q$, les coefficients de $a(x)b(x)$ sont donnés par
+    $$(ab)_k = \sum_{i+j\equiv k\pmod{n}}a_ib_j(-1)^{\left\lfloor\frac{i+j}{2}\right\rfloor}.$$</i>
+</div>
+<div class="proof-container">
+  <div class="proof-toggle">
+    <span class="triangle">▶</span>
+    <span>Afficher la preuve</span>
+  </div>
+  <div class="proof-content">
+    <p><i>Démonstration. </i> 
+Dans \( \mathbb{Z}_q[x] \), le coefficient de \( a(x)b(x) \) de degré \( k \) est donné par
+\[
+\sum_{i+j=k} a_i b_j.
+\]
+Il faut ensuite réduire le polynôme obtenu pour obtenir les coefficients de \( a(x)b(x) \) vu comme un élément de \( \mathcal{R}_q \). Or, lorsque \( 0 \leq i,j < n \), on a \( 0 \leq i+j < 2n \), d'où
+\[
+(ab)_k = \sum_{i+j=k} a_i b_j - \sum_{i+j=n+k} a_i b_j = \sum_{i+j \equiv k \pmod{n}} \varepsilon_{i,j} a_i b_j
+\]
+avec
+\[
+\varepsilon_{i,j} = \begin{cases}
+1 & \text{si } i+j < n, \\
+-1 & \text{si } n \leq i+j < 2n.
+\end{cases}
+\]
+On conclut en remarquant que 
+\[
+\varepsilon_{i,j} = (-1)^{\left\lfloor \frac{i+j}{2} \right\rfloor}.
+\]
+</p>
+
+  </div>
+</div>
+<div>
+<p>Le choix de $x^n+1$ permet donc de réduire une multiplication de polynômes de $\mathcal{R}_q$ à une convolution négacyclique. Pour calculer le produit de polynômes de degré au plus $n$ à coefficients dans un sous-anneau de $\mathbb{C}$, on utilise la FFT, cela réduit la complexité en ${\rm O}(n^2)$ de l'algorithme naïf en ${\rm O}(n\log n)$. La situation est ici analogue, on remplace une racine $n$-ème de l'unité par une racine $n$-ème de $-1$, que l'on prend dans $\mathbb{Z}_q$.</p>
+</div>
+<div>
+<p>Restent deux questions en suspens : comment trouver une racine $n$-ème de $-1$ dans $\mathbb{Z}_q$ ? Pourquoi quotienter par $x^n+1$ et non $x^n-1$ ce qui permettrait de se ramener à une FFT classique ?</p>
+</div>
+<div>
+<p>Pour la première question, une racine $n$-ème de $-1$ est une racine primitive $2n$-ème de $1$, or $\mathbb{Z}_q^{\times}$ étant cyclique, un tel élément existe si et seulement si $2n|q-1$. Une fois cette condition satisfaite, on cherche un générateur $g$ de $\mathbb{Z}_q^{\times}$ et on peut prendre $g^{\frac{q-1}{2n}}$. La détermination d'un générateur de $\mathbb{Z}_q^{\times}$ est un problème difficile en général, il n'est heureusement pas nécessaire d'en calculer un à chaque utilisation de NNT, il suffit d'en fixer un une fois pour toute. On peut choisir aléatoirement un élément de $\mathbb{Z}_q^*$ et vérifier que c'est un générateur, le théorème suivant montre que, pour un choix stratégique de $q$, les générateurs sont très fréquents. </p></div>
+
+<div class="theoreme">
+  <strong>Théorème 2.2.</strong> 
+  <i>Supposons que $q=2^ap+1$ avec $a\geqslant 1$ et $p$ un nombre premier impair et soit $g\in\mathbb{Z}_q^{\times}$ choisi au hasard, alors
+    \[ \Pr(g\text{ est un générateur de }\mathbb{Z}_q^{\times})=\frac{1}{2}-\frac{1}{2p}. \]
+  </i>
+</div>
+<div class="proof-container">
+  <div class="proof-toggle">
+    <span class="triangle">▶</span>
+    <span>Afficher la preuve</span>
+  </div>
+  <div class="proof-content">
+    <p><i>Démonstration. </i></p> Il y a $\varphi(q-1)=\varphi(2^ap)=2^{a-1}(p-1)$ générateurs de $\mathbb{Z}_q^{\times}$ où $\varphi$ est la fonction indicatrice d'Euler, on a donc
+    \[ \Pr(g\text{ est un générateur de }\mathbb{Z}_q^{\times})=\frac{2^{a-1}(p-1)}{q-1}=\frac{p-1}{2p}=\frac{1}{2}-\frac{1}{2p}. \]
+  </div>
+</div>
+
+
         </section>
 
         <section id="encrypt">
-          <h2>Mesures de performance</h2>
-          <h3>Sous-section 1</h3>
+          <h2>3. Mesures de performance</h2>
+          <h3>3.1. Sous-section 1</h3>
           <p>Des choses.</p>
-          <h3>Sous-section 2</h3>
+          <h3>3.2. Sous-section 2</h3>
           <p>D'autres choses.</p>
         </section>
 
         <section id="decrypt">
-          <h2>Mesures de sécurité</h2>
-          <h3>Sous-section 1</h3>
+          <h2>4. Mesures de sécurité</h2>
+          <h3>4.1. Sécurité théorique</h3>
           <p>Blabla</p>
-          <h3>Sous-section 2</h3>
+          <h3>4.2. Analyse d'attaques</h3>
           <p>Blabla.</p>
         </section>
 
         <section id="code">
-          <h2>Conclusion</h2>
+          <h2>5. Conclusion</h2>
           <h3>Exemple en C</h3>
           <pre><code class="language-c">// Pseudo-code NTT skeleton
 void ntt(uint32_t *a, const uint32_t *omegas, size_t n){
@@ -257,11 +326,11 @@ print("Clé générée:", key[:10], "...")
       document.documentElement.classList.toggle('light-mode');
 
       if (document.documentElement.classList.contains('light-mode')) {
-        document.body.style.background = 'linear-gradient(180deg,#f7fafc,#e6eef6)';
+        document.body.style.background = 'linear-gradient(180deg,#f5f5f5,#ffffff)';
         document.body.style.color = '#041322';
         document.documentElement.style.setProperty('--accent', '#065f46');
       } else {
-        document.body.style.background = 'linear-gradient(180deg,#071025 0%, #041322 100%)';
+        document.body.style.background = 'linear-gradient(180deg, #061124 0%, #0c2348 100%)';
         document.body.style.color = '#e6eef6';
         document.documentElement.style.setProperty('--accent', '#4ade80');
       }
@@ -346,5 +415,162 @@ function draw() {
 
 draw();
   </script>
+
+
+<!-- Bouton retour en haut -->
+
+<button id="scrollTopBtn" title="Retour en haut">
+  <svg class="arrow" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="12" y1="19" x2="12" y2="5"></line>
+    <polyline points="5 12 12 5 19 12"></polyline>
+  </svg>
+</button>
+
+<style>
+  #scrollTopBtn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 100;
+    background-color: #333; /* gris foncé */
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    opacity: 0; /* invisible au départ */
+    transition: opacity 0.5s ease, transform 0.3s ease, background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #scrollTopBtn:hover {
+    background-color: #555;
+    transform: scale(1.1);
+  }
+
+  .arrow {
+    transition: transform 0.3s ease;
+  }
+</style>
+
+<script>
+  const scrollBtn = document.getElementById("scrollTopBtn");
+
+  window.addEventListener("scroll", () => {
+    const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const scrollFraction = scrollTop / docHeight;
+
+    if (scrollTop > 100) {
+      scrollBtn.style.opacity = 1;
+    } else {
+      scrollBtn.style.opacity = 0;
+    }
+  });
+
+  scrollBtn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+</script>
+
+<style>
+  .proof-container {
+    margin: 20px 0;
+  }
+
+  .proof-toggle {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: bold;
+    color: #A0AEC0;
+    user-select: none;
+  }
+
+  .triangle {
+    display: inline-block;
+    margin-right: 8px;
+    transition: transform 0.3s ease;
+  }
+
+  .proof-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease, padding 0.5s ease;
+    background-color: #1A2338;
+    border-left: 3px solid #A0AEC0;
+    border-radius: 5px;
+    padding: 0px 15px;
+    margin-top: 8px;
+    color: #F0F0F0;
+  }
+
+  .proof-content.show {
+    padding: 10px 15px;
+  }
+</style>
+
+<script>
+  const proofToggles = document.querySelectorAll('.proof-toggle');
+
+proofToggles.forEach(toggle => {
+  const content = toggle.nextElementSibling;
+  const triangle = toggle.querySelector('.triangle');
+  const label = toggle.querySelector('span:nth-child(2)');
+
+  toggle.addEventListener('click', () => {
+    if (content.classList.contains('show')) {
+      // Fermer
+      content.style.maxHeight = content.scrollHeight + "px"; // Fix temporaire pour transition
+      requestAnimationFrame(() => {
+        content.style.maxHeight = "0";
+      });
+      content.classList.remove('show');
+      triangle.style.transform = "rotate(0deg)";
+      label.textContent = "Afficher la preuve";
+    } else {
+      // Ouvrir
+      content.style.maxHeight = content.scrollHeight + "px";
+      content.classList.add('show');
+      triangle.style.transform = "rotate(90deg)";
+      label.textContent = "Cacher la preuve";
+    }
+  });
+
+  // Adapter la hauteur automatiquement si le contenu change
+  const observer = new MutationObserver(() => {
+    if (content.classList.contains('show')) {
+      content.style.maxHeight = content.scrollHeight + "px";
+    }
+  });
+
+  observer.observe(content, { childList: true, subtree: true, characterData: true });
+});
+
+</script>
+
+<!-- THEOREMES -->
+<style>
+.theoreme {
+    background-color: #1A2338; /* fond sombre */
+    border-left: 4px solid #4ADE80; /* accent couleur titre */
+    border-radius: 8px;
+    padding: 15px 20px;
+    margin: 20px 0;
+    color: #F0F0F0;
+}
+
+.theoreme strong {
+    color: #4ADE80; /* titre du théorème en doré */
+}
+
+.theoreme i {
+    color: #E0E6F0; /* texte en italique */
+}
+</style>
+
 </body>
 </html>
