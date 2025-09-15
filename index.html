@@ -20,14 +20,20 @@
       color:#e6eef6;
       line-height:1.5;
     }
-    .wrap {width: 100%; padding: 40px 60px; box-sizing: border-box;}
+    .wrap {
+  width: 100%;
+  padding: 40px 60px; /* 20px en haut/bas, 40px gauche/droite */
+  box-sizing: border-box;
+}
 
     header{display:flex; gap:16px; align-items:center; margin-bottom:20px}
     header h1{font-size:1.25rem; margin:0}
     header p{margin:0; color:var(--muted); font-size:0.95rem}
 
-    .layout{display:grid; grid-template-columns:260px 1fr; gap:var(--gap)}
-    nav{position:sticky; top:22px; height:calc(100vh - 44px); overflow:auto; padding:14px; background:var(--glass); border-radius:var(--radius)}
+    .layout {display: grid; grid-template-columns: 260px 1fr; gap: var(--gap); min-height: 100vh;}
+
+    nav {position: sticky; top: 20px; display: flex; flex-direction: column; justify-content: center; padding: 14px; background: var(--glass); border-radius: var(--radius); width: 260px; height: fit-content;}
+
     nav ul{list-style:none; padding:0; margin:0}
     nav a{display:block; padding:10px 12px; border-radius:8px; color:var(--accent); text-decoration:none; margin-bottom:6px}
     nav a.active, nav a:hover{background:var(--hover)}
