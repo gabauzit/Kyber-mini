@@ -1,185 +1,264 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Mini Kyber - Projet</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Prototype Kyber — Présentation</title>
 
-  <!-- MathJax pour formules LaTeX -->
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async
-    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
-  <!-- Styles modernes -->
+  <!-- CSS global -->
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-      line-height: 1.6;
-      background-color: #fdfdfd;
-      color: #333;
-      scroll-behavior: smooth;
+    :root{
+      --bg:#0f1724; --card:#0b1220; --muted:#9aa4b2; --accent:#4ade80; --glass: rgba(255,255,255,0.03);
+      --hover: rgba(0,255,0,0.03); --colsect: rgba(255,255,255,0.01); --radius:12px; --gap:18px; --maxw:1100px;
+      color-scheme: dark;
+    }
+    *{box-sizing:border-box}
+    body{
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      margin:0;
+      background:linear-gradient(180deg,#071025 0%, #041322 100%);
+      color:#e6eef6;
+      line-height:1.5;
+    }
+    .wrap{max-width:var(--maxw); margin:28px auto; padding:20px}
+    header{display:flex; gap:16px; align-items:center; margin-bottom:20px}
+    header h1{font-size:1.25rem; margin:0}
+    header p{margin:0; color:var(--muted); font-size:0.95rem}
+
+    .layout{display:grid; grid-template-columns:260px 1fr; gap:var(--gap)}
+    nav{position:sticky; top:22px; height:calc(100vh - 44px); overflow:auto; padding:14px; background:var(--glass); border-radius:var(--radius)}
+    nav ul{list-style:none; padding:0; margin:0}
+    nav a{display:block; padding:10px 12px; border-radius:8px; color:var(--accent); text-decoration:none; margin-bottom:6px}
+    nav a.active, nav a:hover{background:var(--hover)}
+
+    main{padding:18px; background:var(--glass); border-radius:var(--radius)}
+    section{padding:18px; margin-bottom:14px; background:var(--colsect); border-radius:10px}
+    section h2{margin-top:0}
+    .meta{color:var(--muted); font-size:0.9rem}
+
+    pre{overflow:auto; padding:12px; border-radius:8px; background:#071426}
+    code{font-family:SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; font-size:0.92rem}
+
+    @media (max-width:880px){
+      .layout{grid-template-columns:1fr;}
+      nav{position:relative; height:auto; display:flex; overflow:auto; padding:8px}
+      nav a{margin-right:8px}
     }
 
-    header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      background-color: #2c3e50;
-      color: white;
-      padding: 1rem 2rem;
+    .toc-title{color:var(--muted); font-size:0.85rem; margin-bottom:8px}
+    .controls{display:flex; gap:8px; align-items:center}
+    .btn{background:transparent; border:1px solid rgba(255,255,255,0.04); padding:8px 10px; border-radius:8px; color:var(--accent); cursor:pointer}
+  </style>
+
+  <!-- CSS Toggle -->
+  <style>
+    .toggle {
+      position: relative;
+      width: 70px;
+      height: 32px;
+      background: rgba(100,100,100,0.2);
+      border-radius: 50px;
+      cursor: pointer;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      z-index: 1000;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      padding: 2px;
     }
 
-    header h1 {
-      margin: 0;
-      font-size: 1.8rem;
+    .toggle .circle {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      background: #d1d5db; /* gris clair initial */
+      border-radius: 50%;
+      top: 50%;
+      left: 2px;
+      transform: translateY(-50%);
+      transition: transform 0.3s ease, background 0.3s ease;
+      z-index: 2;
     }
 
-    nav a {
-      color: white;
-      text-decoration: none;
-      margin-left: 1.5rem;
-      font-weight: bold;
+    .toggle .icon {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
     }
 
-    nav a:hover {
-      text-decoration: underline;
-    }
+    .toggle .icon.sun { left: 6px; }
+    .toggle .icon.moon { right: 6px; }
 
-    main {
-      max-width: 900px;
-      margin: 6rem auto 2rem; /* 6rem pour laisser la place au header fixe */
-      padding: 0 2rem;
-    }
-
-    section {
-      margin-bottom: 3rem;
-    }
-
-    h2 {
-      color: #2c3e50;
-      border-bottom: 2px solid #ddd;
-      padding-bottom: 0.3rem;
-      margin-top: 2rem;
-    }
-
-    pre {
-      background-color: #f4f4f4;
-      padding: 1rem;
-      border-radius: 5px;
-      overflow-x: auto;
-    }
-
-    code {
-      font-family: 'Courier New', Courier, monospace;
-      color: #c7254e;
-      background-color: #f9f2f4;
-      padding: 2px 4px;
-      border-radius: 3px;
-    }
-
-    .formula {
-      text-align: center;
-      margin: 1.5rem 0;
-      font-size: 1.2rem;
-    }
-
-    footer {
-      text-align: center;
-      padding: 1.5rem;
-      border-top: 1px solid #ddd;
-      margin-top: 3rem;
-      color: #777;
-      font-size: 0.9rem;
+    .toggle.light-mode .circle {
+      transform: translate(38px, -50%);
+      background: #323232; /* cercle foncé en light mode */
     }
   </style>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/vs2015.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [['$','$'], ['\\(','\\)']]},
+      svg: {fontCache: 'global'}
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
 </head>
 <body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Kyber-mini</h1>
+        <p class="meta">Gabriel Abauzit</p>
+      </div>
+      <div style="margin-left:auto; display:flex; align-items:center; gap:8px;" class="controls">
+        <div id="themeSwitch" class="toggle">
+          <span class="icon sun">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <circle cx="12" cy="12" r="5" stroke-width="2" stroke="#facc15"/>
+              <path stroke-width="2" stroke="#facc15" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+            </svg>
+          </span>
+          <span class="circle"></span>
+          <span class="icon moon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-width="2" stroke="currentColor" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+            </svg>
+          </span>
+        </div>
+      </div>
+    </header>
 
-<header>
-  <h1>Mini Kyber</h1>
-  <nav>
-    <a href="#intro">Intro</a>
-    <a href="#math">Math</a>
-    <a href="#encrypt">Chiffrement</a>
-    <a href="#decrypt">Déchiffrement</a>
-    <a href="#code">Code</a>
-  </nav>
-</header>
+    <div class="layout">
+      <nav id="toc">
+        <div class="toc-title">Table des matières</div>
+        <ul>
+          <li><a href="#intro" id="link-intro">Introduction</a></li>
+          <li><a href="#math" id="link-math">Principes mathématiques</a></li>
+          <li><a href="#encrypt" id="link-encrypt">Mesures de performance</a></li>
+          <li><a href="#decrypt" id="link-decrypt">Mesures de sécurité</a></li>
+          <li><a href="#code" id="link-code">Conclusion</a></li>
+        </ul>
+      </nav>
 
-<main>
-  <section id="intro">
-    <h2>Introduction</h2>
-    <p>
-      Kyber est un schéma de chiffrement à clé publique post-quantique basé sur les
-      <strong>Learning With Errors (LWE)</strong> sur les polynômes. 
-      Ce mini-projet illustre les étapes principales de Kyber, les concepts et 
-      quelques formules mathématiques simplifiées.
-    </p>
-  </section>
+      <main>
+        <section id="intro">
+          <h2>Introduction</h2>
+          <h3>Cryptographie post-quantique</h3>
+          <p>Enjeux de la PQC.</p>
+          <h3>Le cas de Kyber</h3>
+          <p>Explication de KEM et Kyber.</p>
+        </section>
 
-  <section id="math">
-    <h2>Principe mathématique</h2>
-    <p>La clé publique est générée à partir d’un polynôme secret <code>s(x)</code> :</p>
-    <div class="formula">
-      \[
-        A \cdot s + e = b \quad \text{où } A \text{ est public, } e \text{ est bruit}
-      \]
-    </div>
-  </section>
+        <section id="math">
+          <h2>Principes mathématiques</h2>
+          <h3>Problème du plus court vecteur et LWE</h3>
+          <p>Explications avec schémas de réseaux.</p>
+          <h3>Multiplication de polynômes avec NNT</h3>
+          <p>Description de NNT.</p>
+        </section>
 
-  <section id="encrypt">
-    <h2>Chiffrement</h2>
-    <p>Pour chiffrer un message <code>m</code> :</p>
-    <div class="formula">
-      \[
-        c_1 = A \cdot r + e_1, \quad c_2 = b \cdot r + e_2 + m
-      \]
-    </div>
-  </section>
+        <section id="encrypt">
+          <h2>Mesures de performance</h2>
+          <h3>Sous-section 1</h3>
+          <p>Des choses.</p>
+          <h3>Sous-section 2</h3>
+          <p>D'autres choses.</p>
+        </section>
 
-  <section id="decrypt">
-    <h2>Déchiffrement</h2>
-    <p>Le destinataire utilise sa clé secrète <code>s</code> pour retrouver <code>m</code> :</p>
-    <div class="formula">
-      \[
-        m = c_2 - c_1 \cdot s
-      \]
-    </div>
-  </section>
+        <section id="decrypt">
+          <h2>Mesures de sécurité</h2>
+          <h3>Sous-section 1</h3>
+          <p>Blabla</p>
+          <h3>Sous-section 2</h3>
+          <p>Blabla.</p>
+        </section>
 
-  <section id="code">
-    <h2>Exemple de code (pseudo-code)</h2>
-    <pre><code>def keygen():
-    s = sample_secret()
-    e = sample_error()
-    A = public_matrix()
-    b = A * s + e
-    return (b, A), s
-
-def encrypt(m, pk):
-    b, A = pk
-    r = sample_random()
-    e1, e2 = sample_error(), sample_error()
-    c1 = A * r + e1
-    c2 = b * r + e2 + m
-    return c1, c2
-
-def decrypt(c, sk):
-    c1, c2 = c
-    return c2 - c1 * sk
+        <section id="code">
+          <h2>Conclusion</h2>
+          <h3>Exemple en C</h3>
+          <pre><code class="language-c">// Pseudo-code NTT skeleton
+void ntt(uint32_t *a, const uint32_t *omegas, size_t n){
+  for(size_t len=1; len<n; len<<=1){
+    size_t step = len<<1;
+    for(size_t i=0;i<n;i+=step){
+      for(size_t j=0;j<len;++j){
+        uint32_t u = a[i+j];
+        uint32_t v = montgomery_mul(a[i+j+len], omegas[j+len]);
+        a[i+j] = (u + v) % Q;
+        a[i+j+len] = (u + Q - v) % Q;
+      }
+    }
+  }
+}
 </code></pre>
-  </section>
-</main>
+          <h3>Exemple en Python</h3>
+          <pre><code class="language-python"># Exemple simple d'encapsulation
+import secrets
 
-<footer>
-  &copy; 2025 Mini Kyber Project. Page générée avec GitHub Pages.
-</footer>
+q = 3329
+n = 256
 
+key = [secrets.randbelow(q) for _ in range(n)]
+print("Clé générée:", key[:10], "...")
+</code></pre>
+
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button class="btn" id="copyCode">Copier l'exemple</button>
+          </div>
+          <p>Décrivez la vérification et la gestion des cas d’échec.</p>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Toggle thème
+    const toggle = document.getElementById('themeSwitch');
+    toggle.addEventListener('click', () => {
+      toggle.classList.toggle('light-mode');
+      document.documentElement.classList.toggle('light-mode');
+
+      if (document.documentElement.classList.contains('light-mode')) {
+        document.body.style.background = 'linear-gradient(180deg,#f7fafc,#e6eef6)';
+        document.body.style.color = '#041322';
+        document.documentElement.style.setProperty('--accent', '#065f46');
+      } else {
+        document.body.style.background = 'linear-gradient(180deg,#071025 0%, #041322 100%)';
+        document.body.style.color = '#e6eef6';
+        document.documentElement.style.setProperty('--accent', '#4ade80');
+      }
+    });
+
+    // Highlight.js
+    hljs.highlightAll();
+
+    // Copier code
+    document.getElementById('copyCode').addEventListener('click', async ()=>{
+      const code = document.querySelector('#code pre code').innerText;
+      try{ await navigator.clipboard.writeText(code); alert('Exemple copié dans le presse-papiers'); }
+      catch(e){ alert('Impossible de copier — utilisez sélection + Ctrl+C'); }
+    });
+
+    // IntersectionObserver pour TOC
+    const sections = Array.from(document.querySelectorAll('main section'));
+    const links = sections.map(s => document.getElementById('link-'+s.id));
+
+    const observer = new IntersectionObserver((entries)=>{
+      entries.forEach(ent => {
+        const id = ent.target.id;
+        const link = document.getElementById('link-'+id);
+        if(ent.isIntersecting){ links.forEach(l=>l.classList.remove('active')); link.classList.add('active'); }
+      });
+    }, {threshold:0.45});
+    sections.forEach(s=>observer.observe(s));
+  });
+  </script>
 </body>
 </html>
