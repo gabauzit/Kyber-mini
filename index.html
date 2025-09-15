@@ -5,8 +5,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Kyber mini</title>
 
-  <!-- CSS global -->
+   <!-- CSS global -->
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Major+Mono+Display&display=swap');
+
     :root{
       --bg:#0f1724; --card:#0b1220; --muted:#9aa4b2; --accent:#4ade80; --glass: rgba(255,255,255,0.03);
       --hover: rgba(0,255,0,0.03); --colsect: rgba(255,255,255,0.01); --radius:12px; --gap:18px;
@@ -20,29 +22,35 @@
       color:#e6eef6;
       line-height:1.5;
     }
-    .wrap {
-  width: 100%;
-  padding: 40px 60px; /* 20px en haut/bas, 40px gauche/droite */
-  box-sizing: border-box;
-}
+    .wrap { width: 100%; padding: 40px 60px; box-sizing: border-box; }
 
-    header{display:flex; gap:16px; align-items:center; margin-bottom:20px}
-    header h1{font-size:1.25rem; margin:0}
-    header p{margin:0; color:var(--muted); font-size:0.95rem}
+    header{display:flex; gap:16px; align-items:center; margin-bottom:20px; flex-direction:column; text-align:center;}
+    .title {
+      font-size:clamp(36px,8vw,80px);
+      font-weight:700;
+      color:#ff9900;
+      font-family:'Major Mono Display', monospace;
+      position:relative;
+      text-shadow:0 0 15px rgba(255,153,0,0.9);
+      margin:0;
+    }
+    .subtitle {
+      margin-top:40px;
+      font-size:clamp(12px,1.5vw,24px);
+      font-weight:400;
+      color:#cccccc;
+      font-family: 'IBM Plex Mono', monospace;
+    }
 
     .layout {display: grid; grid-template-columns: 260px 1fr; gap: var(--gap); min-height: 100vh;}
-
     nav {position: sticky; top: 20px; display: flex; flex-direction: column; justify-content: center; padding: 14px; background: var(--glass); border-radius: var(--radius); width: 260px; height: fit-content;}
-
     nav ul{list-style:none; padding:0; margin:0}
     nav a{display:block; padding:10px 12px; border-radius:8px; color:var(--accent); text-decoration:none; margin-bottom:6px}
     nav a.active, nav a:hover{background:var(--hover)}
-
     main{padding:18px; background:var(--glass); border-radius:var(--radius)}
     section{padding:18px; margin-bottom:14px; background:var(--colsect); border-radius:10px}
     section h2{margin-top:0}
     .meta{color:var(--muted); font-size:0.9rem}
-
     pre{overflow:auto; padding:12px; border-radius:8px; background:#071426}
     code{font-family:SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; font-size:0.92rem}
 
@@ -55,6 +63,23 @@
     .toc-title{color:var(--muted); font-size:0.85rem; margin-bottom:8px}
     .controls{display:flex; gap:8px; align-items:center}
     .btn{background:transparent; border:1px solid rgba(255,255,255,0.04); padding:8px 10px; border-radius:8px; color:var(--accent); cursor:pointer}
+
+    /* Toggle */
+    .toggle {position: relative; width: 70px; height: 32px; background: rgba(100,100,100,0.2); border-radius: 50px; cursor: pointer; display: flex; align-items: center; padding: 2px;}
+    .toggle .circle {position: absolute; width: 28px; height: 28px; background: #d1d5db; border-radius: 50%; top: 50%; left: 2px; transform: translateY(-50%); transition: transform 0.3s ease, background 0.3s ease; z-index: 2;}
+    .toggle .icon {position: absolute; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; z-index: 1;}
+    .toggle .icon.sun { left: 6px; }
+    .toggle .icon.moon { right: 6px; }
+    .toggle.light-mode .circle {transform: translate(38px, -50%); background: #323232;}
+
+	 canvas {
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    z-index:1;}
   </style>
 
   <!-- CSS Toggle -->
@@ -117,10 +142,9 @@
 <body>
   <div class="wrap">
     <header>
-      <div>
-        <h1>Kyber mini</h1>
-        <p class="meta">Gabriel Abauzit</p>
-      </div>
+      <div class="title">Kyber mini<canvas id="network"></canvas></div>
+      <div class="subtitle">Gabriel Abauzit</div>
+	
       <div style="margin-left:auto; display:flex; align-items:center; gap:8px;" class="controls">
         <div id="themeSwitch" class="toggle">
           <span class="icon sun">
@@ -266,6 +290,61 @@ print("Clé générée:", key[:10], "...")
     }, {threshold:0.45});
     sections.forEach(s=>observer.observe(s));
   });
+
+const canvas = document.getElementById('network');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+const points = [];
+const count = 20;
+for(let i=0;i<count;i++){
+  points.push({
+    x: Math.random()*canvas.width,
+    y: Math.random()*canvas.height,
+    vx: (Math.random()-0.5)*0.5,
+    vy: (Math.random()-0.5)*0.5
+  });
+}
+
+function draw() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  points.forEach(p=>{
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,2,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,153,0,0.8)';
+    ctx.fill();
+  });
+  for(let i=0;i<count;i++){
+    for(let j=i+1;j<count;j++){
+      let dx=points[i].x-points[j].x;
+      let dy=points[i].y-points[j].y;
+      let dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<100){
+        ctx.beginPath();
+        ctx.moveTo(points[i].x,points[i].y);
+        ctx.lineTo(points[j].x,points[j].y);
+        ctx.strokeStyle='rgba(255,153,0,'+(1-dist/100)*0.5+')';
+        ctx.lineWidth=1;
+        ctx.stroke();
+      }
+    }
+  }
+  points.forEach(p=>{
+    p.x+=p.vx;
+    p.y+=p.vy;
+    if(p.x<0||p.x>canvas.width) p.vx*=-1;
+    if(p.y<0||p.y>canvas.height) p.vy*=-1;
+  });
+  requestAnimationFrame(draw);
+}
+
+draw();
   </script>
 </body>
 </html>
