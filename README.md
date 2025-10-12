@@ -1,26 +1,15 @@
-# Kyber-mini
-Implémentation d'un mini-Kyber, mesure de performances et de sécurité
+﻿# Test NTT
 
-**NE PAS UTILISER EN SITUATION REELLE**
+![Tests](https://github.com/VOTRE-USERNAME/VOTRE-REPO/workflows/Tests%20NTT%20Kyber/badge.svg)
 
-## Introduction
+Implémentation de la Number Theoretic Transform (NTT) pour Kyber/ML-KEM (FIPS 203).
 
-Présentation du projet
-Respect des codes de sécurité (gestion de mémoire, algo en temps constant)
+## 🧪 Tests automatisés
 
-## Explication de l'algorithme Kyber-mini
+- ✅ 7 tests couvrant propriétés mathématiques et cas limites
+- ✅ 1000 essais aléatoires par test
+- ✅ CI/CD automatique via GitHub Actions
 
-Pourquoi travailler dans l'anneau $R_q$ ? L'anneau $R_q$ est une des façons de représenter un $n$-uplet de d'éléments de Z_q, mais on pourrait pour ça remplacer x^n+1 par n'importe quel polynôme de degré n à coefficient dans Z_q. Le choix de x^n+1 est motivé par l'observation suivante : prenons deux polynômes a(x),b(x) dans R_q, 
-$$
-(ab)_k = \sum_{i+j\equiv k\pmod{n}}\varepsilon_{i,j}a_ib_j
-$$
-
-## Mesure de performances
-
-Comparaison produit de polynômes naïf VS NTT pour différents n
-Mesure de performance selon les paramètres
-
-## Mesure de sécurité
-
-Mesure le temps de calcul d'une attaque naïve et rafinnée sur des petits paramètres.
-Estimer la durée correspondante pour des paramètres réels.
+## 🚀 Compilation et tests
+```bash
+make test
