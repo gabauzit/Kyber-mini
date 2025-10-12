@@ -1,6 +1,6 @@
 ﻿# Test NTT
 
-![Tests](https://github.com/VOTRE-USERNAME/VOTRE-REPO/workflows/Tests%20NTT%20Kyber/badge.svg)
+![Tests](https://github.com/gabauzit/Kyber-mini/workflows/Tests%20NTT%20Kyber/badge.svg)
 
 Implémentation de la Number Theoretic Transform (NTT) pour Kyber/ML-KEM (FIPS 203).
 
