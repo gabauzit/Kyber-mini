@@ -73,7 +73,7 @@ const int16_t zetas_basemul[64] = {
 
 void poly_to_montgomery(poly_t* f) {
     int i;
-    u16int_t temp = 1353; //(2^16)^2 = 1353 (mod 3329)
+    int16_t temp = 1353; //(2^16)^2 = 1353 (mod 3329)
 
     for (i = 0; i < KYBER_N; i++) {
         f->coeffs[i] = fqmul(f->coeffs[i], temp);

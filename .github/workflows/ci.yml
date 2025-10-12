@@ -9,34 +9,32 @@ on:
 
 jobs:
   test:
-    name: Tests sur ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    name: Tests NTT
+    runs-on: ubuntu-latest
     
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-        
     steps:
     - name: 📥 Checkout du code
       uses: actions/checkout@v4
       
-    - name: 🔧 Installation GCC (Ubuntu)
-      if: runner.os == 'Linux'
+    - name: 🔧 Installation des dépendances
       run: |
         sudo apt-get update
-        sudo apt-get install -y gcc make
-        
-    - name: 🔧 Installation GCC (macOS)
-      if: runner.os == 'macOS'
-      run: brew install gcc make
+        sudo apt-get install -y build-essential
         
     - name: ℹ️ Informations système
       run: |
-        echo "=== Informations compilateur ==="
+        echo "=== Compilateur ==="
         gcc --version
+        echo "=== Make ==="
         make --version
         echo "=== Structure du projet ==="
         ls -la
+        echo "=== Contenu src/ ==="
+        ls -la src/
+        echo "=== Contenu include/ ==="
+        ls -la include/
+        echo "=== Contenu tests/ ==="
+        ls -la tests/
         
     - name: 🏗️ Compilation du projet
       run: make
@@ -45,16 +43,14 @@ jobs:
       run: make test-quick
       
     - name: 🚀 Tests complets (1000 essais)
-      run: |
-        make clean
-        make test-full
+      run: make test-full
         
     - name: 📊 Résumé des tests
       if: always()
       run: |
         echo "### 🧪 Résultats des tests NTT" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "**Plateforme:** ${{ matrix.os }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Plateforme:** ubuntu-latest" >> $GITHUB_STEP_SUMMARY
         echo "**Compilateur:** $(gcc --version | head -n1)" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         if [ -f test_ntt ]; then

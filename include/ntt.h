@@ -1,9 +1,9 @@
-#ifndef KYBER_NTT_H
-#define KYBER_NTT_H
+#ifndef NTT_H
+#define NTT_H
 
 /*
  * @file ntt.h
- * @brief Implémentation de NTT et application à la multiplication rapide dans R_q
+ * @brief Implï¿½mentation de NTT et application ï¿½ la multiplication rapide dans R_q
  * @author Gabriel Abauzit
  *
  */
@@ -11,10 +11,10 @@
 #include "poly.h"
 
 /*
- * Une NTT est de longueur 256 donc peut tout à fait être stockée dans le type poly_t.
+ * Une NTT est de longueur 256 donc peut tout ï¿½ fait ï¿½tre stockï¿½e dans le type poly_t.
  *
- * Ceci évite la duplication de la mémoire que causerait un type dédié, et permet de conserver la compatibilité avec toutes les fonctions programmées pour le type poly_t
- * dans le domaine NTT. En revanche, cela réduit légèrement la lisibilité du code, d'autres projets de référence ont également fait ce choix.
+ * Ceci ï¿½vite la duplication de la mï¿½moire que causerait un type dï¿½diï¿½, et permet de conserver la compatibilitï¿½ avec toutes les fonctions programmï¿½es pour le type poly_t
+ * dans le domaine NTT. En revanche, cela rï¿½duit lï¿½gï¿½rement la lisibilitï¿½ du code, d'autres projets de rï¿½fï¿½rence ont ï¿½galement fait ce choix.
  * 
  */
 
@@ -24,9 +24,9 @@
 
 /**
  * Tous les calculs de NTT (qui font donc intervenir des multiplications) ont lieu dans le domaine de Montgomery pour des raisons d'optimisation. Ceci implique plusieurs
- * considérations techniques, en particulier les tables de zeta dans ntt.c sont dans le domaine de Montgomery et les fonctions de réductions sont écrites dans ce fichier.
+ * considï¿½rations techniques, en particulier les tables de zeta dans ntt.c sont dans le domaine de Montgomery et les fonctions de rï¿½ductions sont ï¿½crites dans ce fichier.
  * 
- * Cela signifie également qu'il faut ABSOLUMENT réduire tout polynôme sous sa forme de Montgomery avant de calculer sa NTT.
+ * Cela signifie ï¿½galement qu'il faut ABSOLUMENT rï¿½duire tout polynï¿½me sous sa forme de Montgomery avant de calculer sa NTT.
  * 
  */
 
@@ -90,15 +90,15 @@ void NTT_inv(poly_t* f);
 /**********************************/
 
 /**
- * @brief Multiplie deux polynômes de degré 1 modulo x^2-m
+ * @brief Multiplie deux polynï¿½mes de degrï¿½ 1 modulo x^2-m
  *
- * @param r_0 : coefficient de degré 0 du résultat
- * @param r_1 : coefficient de degré 1 du résultat
- * @param a_0 : coefficient de degré 0 du premier polynôme
- * @param a_1 : coefficient de degré 1 du premier polynôme
- * @param b_0 : coefficient de degré 0 du second polynôme
- * @param b_1 : coefficient de degré 1 du second polynôme
- * @param m : le produit est calculé modulo x^2-m (doit provenir du tableau zetas_basemul)
+ * @param r_0 : coefficient de degrï¿½ 0 du rï¿½sultat
+ * @param r_1 : coefficient de degrï¿½ 1 du rï¿½sultat
+ * @param a_0 : coefficient de degrï¿½ 0 du premier polynï¿½me
+ * @param a_1 : coefficient de degrï¿½ 1 du premier polynï¿½me
+ * @param b_0 : coefficient de degrï¿½ 0 du second polynï¿½me
+ * @param b_1 : coefficient de degrï¿½ 1 du second polynï¿½me
+ * @param m : le produit est calculï¿½ modulo x^2-m (doit provenir du tableau zetas_basemul)
  *
  */
 
@@ -107,8 +107,8 @@ void BaseCaseMultiply(int16_t* r0, int16_t* r1, const int16_t* a0, const int16_t
 /**
  * @brief Multiplie deux NTT entre elles
  *
- * @param r : résultat
- * @param a : première NTT
+ * @param r : rï¿½sultat
+ * @param a : premiï¿½re NTT
  * @param b : seconde NTT
  *
  */
@@ -120,11 +120,11 @@ void MultiplyNTT(poly_t *r, const poly_t* a, const poly_t* b);
 /****************************/
 
 /**
- * @brief Multiplie deux polynômes entre eux via la NTT
+ * @brief Multiplie deux polynï¿½mes entre eux via la NTT
  *
- * @param r : résultat
- * @param a : premier polynôme
- * @param b : second polynôme
+ * @param r : rï¿½sultat
+ * @param a : premier polynï¿½me
+ * @param b : second polynï¿½me
  *
  */
 

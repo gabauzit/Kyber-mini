@@ -1,6 +1,6 @@
 /*
  * @file poly.h
- * @brief Implémentation du type poly_t et de ses opérations usuelles
+ * @brief Implï¿½mentation du type poly_t et de ses opï¿½rations usuelles
  * @author Gabriel Abauzit
  *
  */
@@ -13,8 +13,8 @@
 #include "consts.h"
 
 /**
- * @brief Un polynôme de R_q est représenté par le tableau de ses coefficients :
- * Le polynôme f = f_0 + f_1*x + ... + f_255*x^255 est représenté par le tableau f[i] = f_i
+ * @brief Un polynï¿½me de R_q est reprï¿½sentï¿½ par le tableau de ses coefficients :
+ * Le polynï¿½me f = f_0 + f_1*x + ... + f_255*x^255 est reprï¿½sentï¿½ par le tableau f[i] = f_i
  */
 
 typedef struct {
@@ -22,25 +22,25 @@ typedef struct {
 } poly_t;
 
 /*********************************************/
-/* Opérations de réduction en temps constant */
+/* Opï¿½rations de rï¿½duction en temps constant */
 /*********************************************/
 
 /**
- * @brief Réduction de Montgomery
+ * @brief Rï¿½duction de Montgomery
  *
  * @param int16_t a dans [-q*2^15, q*2^15]
- * @return la réduction de Montgomery de a : a*R^-1 mod q où R=2^16
+ * @return la rï¿½duction de Montgomery de a : a*R^-1 mod q oï¿½ R=2^16
  *
  */
 
 static inline int16_t montgomery_reduce(int32_t a) {
-    int16_t t = (int16_t)(a * KYBER_MONT_INV);  // KYBER_MONT_INV = -q^{-1} mod 2^16
+    int16_t t = (int16_t)(a * KYBER_MONTGOMERY_INV);  // KYBER_MONTGOMERY_INV = -q^{-1} mod 2^16
     t = (int16_t)((a - (int32_t)t * KYBER_Q) >> 16);
     return t;
 }
 
 /**
- * @brief Réduction de Barrett
+ * @brief Rï¿½duction de Barrett
  *
  * @param int16_t a
  * @return le reste de a modulo q dans [0,q-1]
@@ -57,7 +57,7 @@ static inline int16_t barrett_reduce(int16_t a) {
 }
 
 /**
- * @brief Réduction conditionnelle modulo q
+ * @brief Rï¿½duction conditionnelle modulo q
  *
  * @param int16_t a dans [0,2q-1]
  * @return a mod q dans [0,q-1]
@@ -71,12 +71,12 @@ static inline int16_t cond_reduce(int16_t a) {
 }
 
 /**
- * @brief Multiplication dans F_q via la réduction de Montgomery, si a et b sont dans le domaine de Montgomery, calcule leur produit dans le domaine de Montgomery
- *        Autrement dit, si en entrée on a a*R et b*R, renvoie a*b*R
+ * @brief Multiplication dans F_q via la rï¿½duction de Montgomery, si a et b sont dans le domaine de Montgomery, calcule leur produit dans le domaine de Montgomery
+ *        Autrement dit, si en entrï¿½e on a a*R et b*R, renvoie a*b*R
  *
- * @param int16_t a : réduction de Montgomery de a A VOIR, COMMENT SONT CHOISIS LES ENTREES, DANS LE DOMAINE DE MONTGOMERY OU NON
- * @param int16_t b : réduction de Montgomery de b
- * @return la réduction de Montgomery de a*b
+ * @param int16_t a : rï¿½duction de Montgomery de a A VOIR, COMMENT SONT CHOISIS LES ENTREES, DANS LE DOMAINE DE MONTGOMERY OU NON
+ * @param int16_t b : rï¿½duction de Montgomery de b
+ * @return la rï¿½duction de Montgomery de a*b
  *
  */
 static inline int16_t fqmul(int16_t a, int16_t b) {
@@ -90,9 +90,9 @@ static inline int16_t fqmul(int16_t a, int16_t b) {
 /**
  * @brief Addition dans R_q
  *
- * @param r : résultat
- * @param a : première opérande
- * @param b : seconde opérande
+ * @param r : rï¿½sultat
+ * @param a : premiï¿½re opï¿½rande
+ * @param b : seconde opï¿½rande
  * 
 */
 
@@ -101,16 +101,16 @@ void poly_add(poly_t *r, const poly_t *a, const poly_t *b);
 /**
  * @brief Soustraction dans R_q
  *
- * @param r : résultat
- * @param a : première opérande
- * @param b : seconde opérande
+ * @param r : rï¿½sultat
+ * @param a : premiï¿½re opï¿½rande
+ * @param b : seconde opï¿½rande
  *
  */
 
 void poly_sub(poly_t *r, const poly_t *a, const poly_t *b);
 
 /**
- * @brief Réduit les coefficients de f modulo q via la réduction de Barrett
+ * @brief Rï¿½duit les coefficients de f modulo q via la rï¿½duction de Barrett
  *
  * @param f
  *
@@ -132,7 +132,7 @@ void poly_reduce(poly_t *f);
 /*************************/
 
 /**
- * @brief Intialise un élément de R_q à 0
+ * @brief Intialise un ï¿½lï¿½ment de R_q ï¿½ 0
  *
  * @param f
  *
@@ -141,7 +141,7 @@ void poly_reduce(poly_t *f);
 void poly_zero(poly_t *f);
 
 /**
- * @brief Vérifie si les coefficients sont dans [0,q-1]
+ * @brief Vï¿½rifie si les coefficients sont dans [0,q-1]
  *
  * @param f
  * @return 1 si valide, 0 sinon
@@ -151,7 +151,7 @@ void poly_zero(poly_t *f);
 int poly_is_valid(const poly_t *f);
 
 /**
- * @brief Vérifie l'égalité en temps constant, les entrées sont présupposées à coefficients dans [0,q-1]
+ * @brief Vï¿½rifie l'ï¿½galitï¿½ en temps constant, les entrï¿½es sont prï¿½supposï¿½es ï¿½ coefficients dans [0,q-1]
  *
  * @param f
  * @param g

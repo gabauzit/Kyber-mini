@@ -1,12 +1,12 @@
-﻿/**
+﻿#ifndef CONSTS_H
+#define CONSTS_H
+
+/**
  * @file consts.h
  * @brief Constantes de Kyber
  * @author Gabriel Abauzit
  *
  */
-
-#ifndef KYBER_PARAMS_H
-#define KYBER_PARAMS_H
 
 #include <stdint.h>
 #include <stddef.h>
@@ -36,3 +36,5 @@
 
 #define KYBER_MONTGOMERY_INV 62209 // -q^-1 mod 2^16
 #define KYBER_MONTGOMERY_QINV 3327 // q^-1 mod 2^16 */
+
+#endif
