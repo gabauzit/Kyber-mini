@@ -1,19 +1,27 @@
-﻿CC = gcc
+﻿# Makefile pour Kyber/ML-KEM NTT Implementation
+# Auteur: Gabriel Abauzit
+
+# Compilateur et flags
+CC = gcc
 CFLAGS = -Wall -Wextra -O2 -Iinclude
 LDFLAGS = -lm
 
+# Répertoires
 SRC_DIR = src
 INC_DIR = include
 TEST_DIR = tests
 BUILD_DIR = build
 
+# Fichiers sources
 SOURCES = $(SRC_DIR)/ntt.c $(SRC_DIR)/poly.c $(SRC_DIR)/polyvec.c
 HEADERS = $(INC_DIR)/ntt.h $(INC_DIR)/poly.h $(INC_DIR)/polyvec.h
 TEST_SOURCES = $(TEST_DIR)/test_ntt.c
 
+# Fichiers objets
 OBJECTS = $(BUILD_DIR)/ntt.o $(BUILD_DIR)/poly.o $(BUILD_DIR)/polyvec.o
 TEST_OBJECTS = $(BUILD_DIR)/test_ntt.o
 
+# Exécutables
 TEST_EXEC = test_ntt
 
 # Couleurs pour l'affichage
@@ -60,15 +68,15 @@ test: $(TEST_EXEC)
 	fi
 
 # Tests rapides (100 essais)
-test-quick: CFLAGS += -DNBRE_ESSAIS=100
-test-quick: clean $(TEST_EXEC)
-	@echo "$(YELLOW)🧪 Exécution des tests rapides (100 essais)...$(NC)"
+test-quick: clean
+	@echo "$(YELLOW)🧪 Tests rapides (100 essais)...$(NC)"
+	@$(MAKE) CFLAGS="$(CFLAGS) -DNBRE_ESSAIS=100" $(TEST_EXEC)
 	@./$(TEST_EXEC)
 
 # Tests complets (1000 essais)
-test-full: CFLAGS += -DNBRE_ESSAIS=1000
-test-full: clean $(TEST_EXEC)
-	@echo "$(YELLOW)🧪 Exécution des tests complets (1000 essais)...$(NC)"
+test-full: clean
+	@echo "$(YELLOW)🧪 Tests complets (1000 essais)...$(NC)"
+	@$(MAKE) CFLAGS="$(CFLAGS) -DNBRE_ESSAIS=1000" $(TEST_EXEC)
 	@./$(TEST_EXEC)
 
 # Nettoyage
