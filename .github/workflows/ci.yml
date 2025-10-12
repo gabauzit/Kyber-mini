@@ -1,0 +1,31 @@
+name: Tests NTT Kyber
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    name: Tests NTT
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout du code
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Installation de GCC
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc make
+        
+    - name: ℹ️ Version du compilateur
+      run: gcc --version
+        
+    - name: 🏗️ Compilation
+      run: |
+        gcc -o test_ntt test_ntt.c ntt.c poly.c -lm -O2 -Wall
+        
+    - name: 🧪 Exécution des tests
+      run: ./test_ntt   
