@@ -39,9 +39,7 @@ jobs:
         ls -la
         
     - name: 🏗️ Compilation du projet
-      run: |
-        cp Makefile.txt Makefile
-        make
+      run: make
       
     - name: 🧪 Tests rapides (100 essais)
       run: make test-quick
