@@ -24,13 +24,15 @@ poly_t random_poly() {
 /********************/
 
 
-// TEST 1 : Vérifie que NTT(f) renvoie un polynôme dans [0,q-1] si f l'est également
+// TEST 1 : Vérifie que NTT(f) renvoie un polynôme dans [0,q-1] si f l'est également A ENLEVER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 int test_NTT_valid() {
 	poly_t f = random_poly();
 
+	poly_to_montgomery(&f);
 	NTT(&f);
 	NTT_inv(&f);
+	poly_from_montgomery(&f);
 
 	return poly_is_valid(&f);
 }
@@ -42,8 +44,11 @@ int test_NTT_NTTinv() {
 	poly_t g;
 
 	poly_copy(&g, &f);
-	NTT(&g);
-	NTT_inv(&g);
+	
+	poly_to_montgomery(&f);
+	NTT(&f);
+	NTT_inv(&f);
+	poly_from_montgomery(&f);
 
 	return poly_equal(&f, &g);
 }
@@ -53,8 +58,7 @@ int test_NTT_NTTinv() {
 int test_NTT_addition() {
 	poly_t a = random_poly();
 	poly_t b = random_poly();
-	poly_t sum; // sum = a + b
-	poly_t sum_NTT; // sum_NTT = NTT_inv(NTT(a) + NTT(b)), sum == sum_NTT équivaut à NTT(a + b) == NTT(a) + NTT(b) d'après le TEST 1
+	poly_t sum, sum_NTT; // sum = a + b. sum_NTT = NTT_inv(NTT(a) + NTT(b)), sum == sum_NTT équivaut à NTT(a + b) == NTT(a) + NTT(b) d'après le TEST 1
 
 	poly_add(&sum, &a, &b);
 
@@ -82,6 +86,10 @@ int test_NTT_multiplication() {
 	poly_t prod_naif; // prod_naif vaut a * b par convolution négacyclique
 	poly_t prod_NTT; // prod_NTT = NTT_inv(NTT(a) * NTT(b)) et on vérifie de même si prod_naif == prod_NTT
 
+	// Produit NTT
+	
+	NTT_mult(&prod_NTT, &a, &b);
+
 	// Produit naïf
 
 	for (i = 0; i < KYBER_N; i++) {
@@ -96,13 +104,6 @@ int test_NTT_multiplication() {
 		if (temp[i] < 0) temp[i] += KYBER_Q;
 		prod_naif.coeffs[i] = barrett_reduce((int16_t)temp[i]);
 	}
-
-	// Produit NTT
-
-	poly_to_montgomery(&a);
-	poly_to_montgomery(&b);
-	NTT_mult(&prod_NTT, &a, &b);
-	poly_from_montgomery(&prod_NTT);
 	
 	return poly_equal(&prod_naif, &prod_NTT);
 }
@@ -257,14 +258,14 @@ int main() {
 
 	// TEST 5
 
-	afficher_resultat(5, test_NTT_zero(), &test_success);
 	printf("  Progression: 100%%\n");
+	afficher_resultat(5, test_NTT_zero(), &test_success);
 	test_total++;
 
 	// TEST 6
 
+	printf("  Progression: 100%%\n");	
 	afficher_resultat(6, test_NTTinv_zero(), &test_success);
-	printf("  Progression: 100%%\n");
 	test_total++;
 
 	// TEST 7
@@ -282,6 +283,8 @@ int main() {
 
 	afficher_resultat(7, success, &test_success);
 	test_total++;
+	
+	// Résumé final
 
 	printf("\n╔═══════════════════════════════════════════════════╗\n");
 	printf("║              RÉSUMÉ FINAL                         ║\n");

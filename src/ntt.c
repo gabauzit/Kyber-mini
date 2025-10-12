@@ -3,33 +3,53 @@
 
 /* Les calculs dans la NTT ayant lieu dans le domaine de Montgomery, les tableaux zetas, zetas_inv et zetas_basemul sont précompilés dans ce dernier
  * pour éviter des conversions répétées pendant les calculs.
- * 
+ *
  * Tableaux obtenus à partir de l'Appendix A du FIPS-203, puis convertis dans le domaine de Montgomery à l'aide du programme Python ~/tables/zetas.py
- * 
+ *
  */
 
-// zetas[i] = zeta^BitRev_7(i) dans le domaine de Montgomery
-static const int16_t zetas[128] = {
-    -1044, -758, -359, -1517, 1493, 1422, 287, 202,
-    -171, 622, 1577, 182, 962, -1202, -1474, 1468,
-    573, -1325, 264, 383, -829, 1458, -1602, -130,
-    -681, 1017, 732, 608, -1542, 411, -205, -1571,
-    1223, 652, -552, 1015, -1293, 1491, -282, -1544,
-    516, -8, -320, -666, -1618, -1162, 126, 1469,
-    -853, -90, -271, 830, 107, -1421, -247, -951,
-    -398, 961, -1508, 1355, 1063, -1325, -221, 174,
-    -1716, -475, 1335, -1181, -1464, 1013, -1532, -1606,
-    -761, 1058, 1764, -470, -543, 1117, 736, -529,
-    -1684, 1157, -1096, 488, 1001, -1163, -854, -1077,
-    -1068, -1071, 1259, 1269, -1491, -1249, -1617, 1055,
-    1180, -1044, -1185, 886, -512, -1611, -1097, 1064,
-    1088, -1320, -1346, 322, 1138, -1464, 1019, 1015,
-    1292, -1326, 851, 1117, -1618, -1297, -276, -1212,
-    -296, 1448, 1081, -190, 542, 1606, -1297, 1203
+ // zetas[i] = zeta^BitRev_7(i) dans le domaine de Montgomery
+ /*static const int16_t zetas[128] = {
+     -1044, -758, -359, -1517, 1493, 1422, 287, 202,
+     -171, 622, 1577, 182, 962, -1202, -1474, 1468,
+     573, -1325, 264, 383, -829, 1458, -1602, -130,
+     -681, 1017, 732, 608, -1542, 411, -205, -1571,
+     1223, 652, -552, 1015, -1293, 1491, -282, -1544,
+     516, -8, -320, -666, -1618, -1162, 126, 1469,
+     -853, -90, -271, 830, 107, -1421, -247, -951,
+     -398, 961, -1508, 1355, 1063, -1325, -221, 174,
+     -1716, -475, 1335, -1181, -1464, 1013, -1532, -1606,
+     -761, 1058, 1764, -470, -543, 1117, 736, -529,
+     -1684, 1157, -1096, 488, 1001, -1163, -854, -1077,
+     -1068, -1071, 1259, 1269, -1491, -1249, -1617, 1055,
+     1180, -1044, -1185, 886, -512, -1611, -1097, 1064,
+     1088, -1320, -1346, 322, 1138, -1464, 1019, 1015,
+     1292, -1326, 851, 1117, -1618, -1297, -276, -1212,
+     -296, 1448, 1081, -190, 542, 1606, -1297, 1203
+ };*/
+
+const int16_t zetas[128] = {
+  -1044,  -758,  -359, -1517,  1493,  1422,   287,   202,
+   -171,   622,  1577,   182,   962, -1202, -1474,  1468,
+    573, -1325,   264,   383,  -829,  1458, -1602,  -130,
+   -681,  1017,   732,   608, -1542,   411,  -205, -1571,
+   1223,   652,  -552,  1015, -1293,  1491,  -282, -1544,
+    516,    -8,  -320,  -666, -1618, -1162,   126,  1469,
+   -853,   -90,  -271,   830,   107, -1421,  -247,  -951,
+   -398,   961, -1508,  -725,   448, -1065,   677, -1275,
+  -1103,   430,   555,   843, -1251,   871,  1550,   105,
+    422,   587,   177,  -235,  -291,  -460,  1574,  1653,
+   -246,   778,  1159,  -147,  -777,  1483,  -602,  1119,
+  -1590,   644,  -872,   349,   418,   329,  -156,   -75,
+    817,  1097,   603,   610,  1322, -1285, -1465,   384,
+  -1215,  -136,  1218, -1335,  -874,   220, -1187, -1659,
+  -1185, -1530, -1278,   794, -1510,  -854,  -870,   478,
+   -108,  -308,   996,   991,   958, -1460,  1522,  1628
 };
 
+
 // zetas_inv[i] = zeta^{-BitRev_7(i)} dans le domaine de Montgomery
-static const int16_t zetas_inv[128] = {
+/*static const int16_t zetas_inv[128] = {
     1701, 1807, 1460, 2371, 2338, 2333, 308, 108,
     2851, 870, 854, 1510, 2535, 1278, 1530, 1185,
     1659, 1187, 3109, 874, 1335, 2111, 136, 1215,
@@ -46,11 +66,11 @@ static const int16_t zetas_inv[128] = {
     130, 1602, -1458, 829, -383, -264, 1325, -573,
     -1468, 1474, 1202, -962, -182, -1577, -622, 171,
     -202, -287, -1422, -1493, 1517, 359, 758, 1044
-}; 
+}; */
 
 // zetas_basemul[i] = zeta^(2*BitRev7(i)+1) dans le domaine de Montgomery
 
-const int16_t zetas_basemul[64] = {
+/* static const int16_t zetas_basemul[64] = {
     -758, 622, -1325, 1017, 652, -8, -90, 961,
     -475, 1058, 1157, -1071, -1044, -1320, -1326, 1448,
     -1517, 182, 383, 608, 1015, -320, -271, -1508,
@@ -59,7 +79,8 @@ const int16_t zetas_basemul[64] = {
     -1464, -470, 1001, 1269, -512, 322, 1117, 542,
     1422, -1202, 1458, 411, 1491, -1162, -1421, 1063,
     1013, -543, -1163, -1249, -1611, 1138, -1297, 1606
-};
+}; */
+static const int16_t zetas_basemul[128] = { 2226, 1103, 430, 2899, 555, 2774, 843, 2486, 2078, 1251, 871, 2458, 1550, 1779, 105, 3224, 422, 2907, 587, 2742, 177, 3152, 3094, 235, 3038, 291, 2869, 460, 1574, 1755, 1653, 1676, 3083, 246, 778, 2551, 1159, 2170, 3182, 147, 2552, 777, 1483, 1846, 2727, 602, 1119, 2210, 1739, 1590, 644, 2685, 2457, 872, 349, 2980, 418, 2911, 329, 3000, 3173, 156, 3254, 75, 817, 2512, 1097, 2232, 603, 2726, 610, 2719, 1322, 2007, 2044, 1285, 1864, 1465, 384, 2945, 2114, 1215, 3193, 136, 1218, 2111, 1994, 1335, 2455, 874, 220, 3109, 2142, 1187, 1670, 1659, 2144, 1185, 1799, 1530, 2051, 1278, 794, 2535, 1819, 1510, 2475, 854, 2459, 870, 478, 2851, 3221, 108, 3021, 308, 996, 2333, 991, 2338, 958, 2371, 1869, 1460, 1522, 1807, 1628, 1701 };
 
 /*****************************/
 /* CONVERSIONS DE MONTGOMERY */
@@ -73,10 +94,9 @@ const int16_t zetas_basemul[64] = {
 
 void poly_to_montgomery(poly_t* f) {
     int i;
-    int16_t temp = 1353; //(2^16)^2 = 1353 (mod 3329)
 
     for (i = 0; i < KYBER_N; i++) {
-        f->coeffs[i] = fqmul(f->coeffs[i], temp);
+        f->coeffs[i] = fqmul(f->coeffs[i], 1353); // (2^16)^2 = 1353 (mod 3329)
     }
 }
 
@@ -95,18 +115,18 @@ void poly_from_montgomery(poly_t* f) {
 // Algorithme 9 du FIPS-203
 
 void NTT(poly_t* f) {
-    unsigned len, start, i, j;
+    int len, start, i, j;
     int16_t zeta, t;
 
     i = 1;
 
     for (len = 128; len >= 2; len >>= 1) {
-        for (start = 0; start < KYBER_N; start += len << 1) {
+        for (start = 0; start < KYBER_N; start = j + len) {
             zeta = zetas[i++];
             for (j = start; j < start + len; j++) {
                 t = fqmul(f->coeffs[j + len], zeta);
-                f->coeffs[j + len] = barrett_reduce(f->coeffs[j] - t);
-                f->coeffs[j] = barrett_reduce(f->coeffs[j] + t);
+                f->coeffs[j + len] = f->coeffs[j] - t;
+                f->coeffs[j] += t;
             }
         }
     }
@@ -115,32 +135,33 @@ void NTT(poly_t* f) {
 // Algorithme 10 du FIPS-203
 
 void NTT_inv(poly_t* f) {
-    unsigned int len, start, i, j;
+    int len, start, i, j;
     int16_t zeta, t;
 
     i = 127;
 
     for (len = 2; len <= 128; len <<= 1) {
-        for (start = 0; start < KYBER_N; start += len << 1) {
-            zeta = zetas_inv[i--];
+        for (start = 0; start < KYBER_N; start = j + len) {
+            zeta = zetas[i--];
             for (j = start; j < start + len; j++) {
                 t = f->coeffs[j];
                 f->coeffs[j] = barrett_reduce(t + f->coeffs[j + len]);
-                f->coeffs[j + len] = barrett_reduce(t - f->coeffs[j + len]);
-                f->coeffs[j + len] = fqmul(zeta, f->coeffs[j + len]);
+                f->coeffs[j] = f->coeffs[j] - t;
+                f->coeffs[j + len] = fqmul(zeta, f->coeffs[j + len] - t);
             }
         }
     }
 
     for (j = 0; j < KYBER_N; j++) {
         /*
-        * La NTT inverse nécessite une normalisation finale consistant à diviser par 256.
+        * La NTT inverse nécessite une normalisation finale consistant à diviser par 128.
         * Or, si on veut rester dans le domaine de Montgomery, on aimerait en réalité obtenir au final
-        * f[j] * 256^{-1} * 2^16 = fqmul(f[j], 256^{-1} * (2^16)^2)
-        * et 256^{-1} * (2^16)^2 = 1441 (mod 3329)
-        * 
+        * f[j] * 128^{-1} * 2^16 = fqmul(f[j], 128^{-1} * (2^16)^2)
+        * et 128^{-1} * (2^16)^2 = 2482 (mod 3329)
+        * au final, f[j] * R, on veut à la fin reduce(f[j]) / 128 après réduction, donc f[j] * 128^{-1} * R avant réduction, = (f[j] * R) (128^{-1} * R}) * R^{-1} = fqmul(f[j], 128^{-1} * 2^16))
+        * et 128^{-1} * 2^16 = 512 (mod 3329)
         */
-        f->coeffs[j] = fqmul(f->coeffs[j], 1441); 
+        f->coeffs[j] = fqmul(f->coeffs[j], 1441);
     }
 }
 
@@ -150,7 +171,7 @@ void NTT_inv(poly_t* f) {
 
 // Algorithme 12 du FIPS-203
 
-void BaseCaseMultiply(int16_t* r0, int16_t* r1, const int16_t* a0, const int16_t* a1, const int16_t* b0, const int16_t* b1, const int16_t *m) {
+void BaseCaseMultiply(int16_t* r0, int16_t* r1, const int16_t* a0, const int16_t* a1, const int16_t* b0, const int16_t* b1, const int16_t* m) {
 
     *r0 = fqmul(*a1, *b1);
     *r0 = fqmul(*r0, *m);
@@ -178,14 +199,13 @@ void MultiplyNTT(poly_t* r, const poly_t* a, const poly_t* b) {
 /**********************************/
 
 void NTT_mult(poly_t* r, poly_t* a, poly_t* b) {
-
     poly_to_montgomery(a);
     poly_to_montgomery(b);
 
     NTT(a);
     NTT(b);
-
     MultiplyNTT(r, a, b);
     NTT_inv(r);
+
     poly_from_montgomery(r);
 }

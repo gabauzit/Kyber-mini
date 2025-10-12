@@ -31,10 +31,11 @@
 
 #define ZETA 17         // Racine primtiive 256-ème de l'unité dans Z_q
 
-#define KYBER_MONTGOMERY_R = 2285 // 2^16 = 2285 mod 3329
-#define KYBER_MONTGOMERY_RINV = 169 // (2^16)^{-1} = 169 mod 3329
+#define MONTGOMERY_R 2285 // 2^16 = 2285 mod 3329
+#define MONTGOMERY_RINV 169 // (2^16)^{-1} = 169 mod 3329
+#define MONTGOMERY_INV 3327 // -q^-1 mod 2^16
+#define MNTGOMERY_QINV 62209 // q^-1 mod 2^16 */
 
-#define KYBER_MONTGOMERY_INV 62209 // -q^-1 mod 2^16
-#define KYBER_MONTGOMERY_QINV 3327 // q^-1 mod 2^16 */
+#define BARRETT_FACTOR 20159
 
 #endif

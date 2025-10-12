@@ -34,8 +34,10 @@ typedef struct {
  */
 
 static inline int16_t montgomery_reduce(int32_t a) {
-    int16_t t = (int16_t)(a * KYBER_MONTGOMERY_INV);  // KYBER_MONTGOMERY_INV = -q^{-1} mod 2^16
-    t = (int16_t)((a - (int32_t)t * KYBER_Q) >> 16);
+    int16_t t;
+    
+    t = (int16_t)(a * MONTGOMERY_INV);  // MONTGOMERY_INV = 62209 = q^{-1} mod 2^16
+    t = (a - (int32_t)t*KYBER_Q) >> 16;
     return t;
 }
 
@@ -49,9 +51,9 @@ static inline int16_t montgomery_reduce(int32_t a) {
 
 static inline int16_t barrett_reduce(int16_t a) {
     int16_t t;
-    const int16_t v = 20158; // floor(2^26 / q) = 20158 A VOIR SI ON REMPLACE PAR L'ENTIER LE PLUS PROCHE AUQUEL CAS v = 20159
+    const int16_t v = BARRETT_FACTOR; // BARRETT_FACTOR = entier le plus proche de 2^26 / q = 20159
 
-    t = (int16_t)(((int32_t)v * a + (1 << 25)) >> 26);
+    t = ((int32_t)v * a + (1 << 25)) >> 26;
     t *= KYBER_Q;
     return a - t;
 }
