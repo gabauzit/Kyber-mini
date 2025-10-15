@@ -10,44 +10,44 @@
 
 #include "poly.h"
 
-/*
- * Une NTT est de longueur 256 donc peut tout � fait �tre stock�e dans le type poly_t.
- *
- * Ceci �vite la duplication de la m�moire que causerait un type d�di�, et permet de conserver la compatibilit� avec toutes les fonctions programm�es pour le type poly_t
- * dans le domaine NTT. En revanche, cela r�duit l�g�rement la lisibilit� du code, d'autres projets de r�f�rence ont �galement fait ce choix.
- * 
- */
+ /*
+  * Une NTT est de longueur 256 donc peut tout � fait �tre stock�e dans le type poly_t.
+  *
+  * Ceci �vite la duplication de la m�moire que causerait un type d�di�, et permet de conserver la compatibilit� avec toutes les fonctions programm�es pour le type poly_t
+  * dans le domaine NTT. En revanche, cela r�duit l�g�rement la lisibilit� du code, d'autres projets de r�f�rence ont �galement fait ce choix.
+  *
+  */
 
-/****************************/
-/* REDUCTIONS DE MONTGOMERY */
-/****************************/
+  /****************************/
+  /* REDUCTIONS DE MONTGOMERY */
+  /****************************/
 
-/**
- * Tous les calculs de NTT (qui font donc intervenir des multiplications) ont lieu dans le domaine de Montgomery pour des raisons d'optimisation. Ceci implique plusieurs
- * consid�rations techniques, en particulier les tables de zeta dans ntt.c sont dans le domaine de Montgomery et les fonctions de r�ductions sont �crites dans ce fichier.
- * 
- * Cela signifie �galement qu'il faut ABSOLUMENT r�duire tout polyn�me sous sa forme de Montgomery avant de calculer sa NTT.
- * 
- */
+  /**
+   * Tous les calculs de NTT (qui font donc intervenir des multiplications) ont lieu dans le domaine de Montgomery pour des raisons d'optimisation. Ceci implique plusieurs
+   * consid�rations techniques, en particulier les tables de zeta dans ntt.c sont dans le domaine de Montgomery et les fonctions de r�ductions sont �crites dans ce fichier.
+   *
+   * Cela signifie �galement qu'il faut ABSOLUMENT r�duire tout polyn�me sous sa forme de Montgomery avant de calculer sa NTT.
+   *
+   */
 
 
-/**
- * @brief Convert polynomial to Montgomery domain
- *
- * Multiplies all coefficients by R = 2^16 mod q
- * INPUT:  Polynomial in normal form [0, q-1]
- * OUTPUT: Polynomial in Montgomery form (in-place)
- *
- * @param r Polynomial to convert
- *
- * Time complexity: O(n), constant-time
- *
- * USAGE: Call this BEFORE first NTT operation!
- * Example:
- *   poly f;  // Normal form
- *   poly_tomont(&f);  // Now in Montgomery form
- *   ntt(&f);  // Can safely apply NTT
- */
+   /**
+	* @brief Convert polynomial to Montgomery domain
+	*
+	* Multiplies all coefficients by R = 2^16 mod q
+	* INPUT:  Polynomial in normal form [0, q-1]
+	* OUTPUT: Polynomial in Montgomery form (in-place)
+	*
+	* @param r Polynomial to convert
+	*
+	* Time complexity: O(n), constant-time
+	*
+	* USAGE: Call this BEFORE first NTT operation!
+	* Example:
+	*   poly f;  // Normal form
+	*   poly_tomont(&f);  // Now in Montgomery form
+	*   ntt(&f);  // Can safely apply NTT
+	*/
 
 void poly_to_montgomery(poly_t* f);
 
@@ -113,23 +113,6 @@ void BaseCaseMultiply(int16_t* r0, int16_t* r1, const int16_t* a0, const int16_t
  *
  */
 
-void MultiplyNTT(poly_t *r, const poly_t* a, const poly_t* b);
-
-/****************************/
-/* MULTIPLICATIONS AVEC NTT */
-/****************************/
-
-/**
- * @brief Multiplie deux polyn�mes entre eux via la NTT
- *
- * @param r : r�sultat
- * @param a : premier polyn�me
- * @param b : second polyn�me
- *
- */
-
-void NTT_mult(poly_t* r, poly_t* a, poly_t* b);
-
-//RAJOUTER LES PRODUITS SCALAIRE ET LE PRODUIT MATRICE/VECTEUR
+void MultiplyNTT(poly_t* r, const poly_t* a, const poly_t* b);
 
 #endif

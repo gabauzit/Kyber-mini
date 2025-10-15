@@ -15,15 +15,23 @@
 #define KYBER_N 256
 #define KYBER_Q 3329
 
-/**************/
-/* ML-KEM-512 */
-/**************/
+ /**************/
+ /* ML-KEM-512 PARAMETRES */
+ /**************/
 
 #define KYBER_K 2
 #define KYBER_ETA1 3
 #define KYBER_ETA2 2
 #define KYBER_DU 10
 #define KYBER_DV 4
+
+/************/
+/* ? */
+/**********/
+
+#define KYBER_SYMBYTES 32              // Taille du secret partagé
+#define KYBER_POLYBYTES 384            /* Size of encoded polynomial (12*256/8) */
+#define KYBER_POLYVECBYTES (KYBER_K * KYBER_POLYBYTES)
 
 /************************/
 /* Constantes de la NTT */
@@ -34,7 +42,7 @@
 #define MONTGOMERY_R 2285 // 2^16 = 2285 mod 3329
 #define MONTGOMERY_RINV 169 // (2^16)^{-1} = 169 mod 3329
 #define MONTGOMERY_INV 3327 // -q^-1 mod 2^16
-#define MNTGOMERY_QINV 62209 // q^-1 mod 2^16 */
+#define MONTGOMERY_QINV 62209 // q^-1 mod 2^16 */
 
 #define BARRETT_FACTOR 20159
 

@@ -1,20 +1,20 @@
 /**
  * @file poly.c
- * @brief Implémentation du type poly_t et de ses opérations usuelles
+ * @brief Implï¿½mentation du type poly_t et de ses opï¿½rations usuelles
  * @author Gabriel Abauzit
- * 
+ *
  **/
 
 #include "poly.h"
 
-/***********************/
-/* OPERATIONS DANS R_q */
-/***********************/
+ /***********************/
+ /* OPERATIONS DANS R_q */
+ /***********************/
 
-// ATTENTION : pour des raisons d'optimisation, on ne réduit pas les coefficients après chaque calcul, ceci nous expose à un débordement du type 16int_t.
-//             Si les coefficients sont présupposés réduits, on peut effectuer 8 additions / soustractions de façon sûre, au-delà les calculs peuvent être faussés
+ // ATTENTION : pour des raisons d'optimisation, on ne rï¿½duit pas les coefficients aprï¿½s chaque calcul, ceci nous expose ï¿½ un dï¿½bordement du type 16int_t.
+ //             Si les coefficients sont prï¿½supposï¿½s rï¿½duits, on peut effectuer 8 additions / soustractions de faï¿½on sï¿½re, au-delï¿½ les calculs peuvent ï¿½tre faussï¿½s
 
-void poly_add(poly_t *r, const poly_t *a, const poly_t *b) {
+void poly_add(poly_t* r, const poly_t* a, const poly_t* b) {
     int i;
 
     for (i = 0; i < KYBER_N; i++) {
@@ -22,7 +22,7 @@ void poly_add(poly_t *r, const poly_t *a, const poly_t *b) {
     }
 }
 
-void poly_sub(poly_t *r, const poly_t *a, const poly_t *b) {
+void poly_sub(poly_t* r, const poly_t* a, const poly_t* b) {
     int i;
 
     for (i = 0; i < KYBER_N; i++) {
@@ -30,7 +30,25 @@ void poly_sub(poly_t *r, const poly_t *a, const poly_t *b) {
     }
 }
 
-void poly_reduce(poly_t *f) {
+void poly_mult(poly_t* r, poly_t* a, poly_t* b) {
+    poly_to_montgomery(a);
+    poly_to_montgomery(b);
+
+    NTT(a);
+    NTT(b);
+    MultiplyNTT(r, a, b);
+    NTT_inv(r);
+
+    poly_from_montgomery(r);
+    poly_from_montgomery(a);
+    poly_from_montgomery(b);
+
+    poly_reduce(r);
+    poly_reduce(a);
+    poly_reduce(b);
+}
+
+void poly_reduce(poly_t* f) {
     int i;
 
     for (i = 0; i < KYBER_N; i++) {
@@ -42,7 +60,7 @@ void poly_reduce(poly_t *f) {
 /* Fonctions utilitaires */
 /*************************/
 
-void poly_zero(poly_t *f) {
+void poly_zero(poly_t* f) {
     int i;
 
     for (i = 0; i < KYBER_N; i++) {
@@ -50,8 +68,8 @@ void poly_zero(poly_t *f) {
     }
 }
 
-int poly_is_valid(const poly_t *f) {
-    int i;  
+int poly_is_valid(const poly_t* f) {
+    int i;
     int is_valid = 1;
 
     for (i = 0; i < KYBER_N; i++) {
@@ -71,4 +89,14 @@ int poly_equal(const poly_t* f, const poly_t* g) {
     }
 
     return are_equal;
+}
+
+void poly_secure_free(poly_t *f) {
+    if (f == NULL) return;
+
+    volatile int16_t* ptr = f->coeffs;
+    for (i = 0; i < KYBER_N; i++)
+        ptr[i] = 0;
+
+    free(f);
 }

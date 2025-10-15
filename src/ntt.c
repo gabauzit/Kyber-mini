@@ -48,6 +48,7 @@ const int16_t zetas[128] = {
 };
 
 
+
 // zetas_inv[i] = zeta^{-BitRev_7(i)} dans le domaine de Montgomery
 /*static const int16_t zetas_inv[128] = {
     1701, 1807, 1460, 2371, 2338, 2333, 308, 108,
@@ -114,7 +115,7 @@ void poly_from_montgomery(poly_t* f) {
 
 // Algorithme 9 du FIPS-203
 
-void NTT(poly_t* f) {
+/*void NTT(poly_t* f) {
     int len, start, i, j;
     int16_t zeta, t;
 
@@ -127,6 +128,24 @@ void NTT(poly_t* f) {
                 t = fqmul(f->coeffs[j + len], zeta);
                 f->coeffs[j + len] = f->coeffs[j] - t;
                 f->coeffs[j] += t;
+            }
+        }
+    }
+}*/
+
+void NTT(poly_t* f) {
+    int len, start, i, j;
+    int16_t zeta, t;
+
+    i = 1;
+
+    for (len = 128; len >= 2; len >>= 1) {
+        for (start = 0; start < KYBER_N; start = j + len) {
+            zeta = zetas[i++];
+            for (j = start; j < start + len; j++) {
+                t = fqmul(zeta, f->coeffs[j + len]);  // ← Changé l'ordre !
+                f->coeffs[j + len] = f->coeffs[j] - t;
+                f->coeffs[j] = f->coeffs[j] + t;  // ← Aussi changé += en =
             }
         }
     }
@@ -146,8 +165,8 @@ void NTT_inv(poly_t* f) {
             for (j = start; j < start + len; j++) {
                 t = f->coeffs[j];
                 f->coeffs[j] = barrett_reduce(t + f->coeffs[j + len]);
-                f->coeffs[j] = f->coeffs[j] - t;
-                f->coeffs[j + len] = fqmul(zeta, f->coeffs[j + len] - t);
+                f->coeffs[j + len] = f->coeffs[j + len] - t;
+                f->coeffs[j + len] = fqmul(zeta, f->coeffs[j + len]);
             }
         }
     }
@@ -191,21 +210,4 @@ void MultiplyNTT(poly_t* r, const poly_t* a, const poly_t* b) {
         r->coeffs[2 * i] = r0;
         r->coeffs[2 * i + 1] = r1;
     }
-}
-
-
-/**********************************/
-/* MULTIPLICATION RAPIDE AVEC NTT */
-/**********************************/
-
-void NTT_mult(poly_t* r, poly_t* a, poly_t* b) {
-    poly_to_montgomery(a);
-    poly_to_montgomery(b);
-
-    NTT(a);
-    NTT(b);
-    MultiplyNTT(r, a, b);
-    NTT_inv(r);
-
-    poly_from_montgomery(r);
 }

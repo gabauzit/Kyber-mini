@@ -12,10 +12,10 @@
 #include <string.h> // pour memcpy
 #include "consts.h"
 
-/**
- * @brief Un polyn�me de R_q est repr�sent� par le tableau de ses coefficients :
- * Le polyn�me f = f_0 + f_1*x + ... + f_255*x^255 est repr�sent� par le tableau f[i] = f_i
- */
+ /**
+  * @brief Un polyn�me de R_q est repr�sent� par le tableau de ses coefficients :
+  * Le polyn�me f = f_0 + f_1*x + ... + f_255*x^255 est repr�sent� par le tableau f[i] = f_i
+  */
 
 typedef struct {
     int16_t coeffs[KYBER_N];
@@ -35,9 +35,9 @@ typedef struct {
 
 static inline int16_t montgomery_reduce(int32_t a) {
     int16_t t;
-    
-    t = (int16_t)(a * MONTGOMERY_INV);  // MONTGOMERY_INV = 62209 = q^{-1} mod 2^16
-    t = (a - (int32_t)t*KYBER_Q) >> 16;
+
+    t = (int16_t)(a * MONTGOMERY_QINV);  // MONTGOMERY_QINV = 62209 = q^{-1} mod 2^16
+    t = (a - (int32_t)t * KYBER_Q) >> 16;
     return t;
 }
 
@@ -95,10 +95,10 @@ static inline int16_t fqmul(int16_t a, int16_t b) {
  * @param r : r�sultat
  * @param a : premi�re op�rande
  * @param b : seconde op�rande
- * 
+ *
 */
 
-void poly_add(poly_t *r, const poly_t *a, const poly_t *b);
+void poly_add(poly_t* r, const poly_t* a, const poly_t* b);
 
 /**
  * @brief Soustraction dans R_q
@@ -109,7 +109,7 @@ void poly_add(poly_t *r, const poly_t *a, const poly_t *b);
  *
  */
 
-void poly_sub(poly_t *r, const poly_t *a, const poly_t *b);
+void poly_sub(poly_t* r, const poly_t* a, const poly_t* b);
 
 /**
  * @brief R�duit les coefficients de f modulo q via la r�duction de Barrett
@@ -118,7 +118,16 @@ void poly_sub(poly_t *r, const poly_t *a, const poly_t *b);
  *
  */
 
-void poly_reduce(poly_t *f);
+/*
+ *
+ * Calcule le produit de deux polynômes rapidement avec la NTT
+ * a et b sont modifiés, il passent dans le domaine de Montgomery puis subissent une réduction de Montgomery
+ * 
+ */
+
+void poly_mult(poly_t* r, poly_t* a, poly_t* b);
+
+void poly_reduce(poly_t* f);
 
 /**
  * @brief Conversion dans le domaine de Montgomery : r = a * R mod q
@@ -129,18 +138,18 @@ void poly_reduce(poly_t *f);
  * Time complexity: O(n), constant-time
  */
 
-/*************************/
-/* FONCTIONS UTILITAIRES */
-/*************************/
+ /*************************/
+ /* FONCTIONS UTILITAIRES */
+ /*************************/
 
-/**
- * @brief Intialise un �l�ment de R_q � 0
- *
- * @param f
- *
- */
+ /**
+  * @brief Intialise un �l�ment de R_q � 0
+  *
+  * @param f
+  *
+  */
 
-void poly_zero(poly_t *f);
+void poly_zero(poly_t* f);
 
 /**
  * @brief V�rifie si les coefficients sont dans [0,q-1]
@@ -150,7 +159,7 @@ void poly_zero(poly_t *f);
  *
  */
 
-int poly_is_valid(const poly_t *f);
+int poly_is_valid(const poly_t* f);
 
 /**
  * @brief V�rifie l'�galit� en temps constant, les entr�es sont pr�suppos�es � coefficients dans [0,q-1]
@@ -164,14 +173,23 @@ int poly_is_valid(const poly_t *f);
 int poly_equal(const poly_t* f, const poly_t* g);
 
 /**
+ * @brief Libère l'emplacement mémoire d'un poly_t de façon sécurisée
+ *
+ * @param f
+ *
+ */
+
+void poly_secure_free(poly_t* f);
+
+/**
  * @brief Copie dans R_q
  *
- * @param target 
+ * @param target
  * @param source
  *
  */
 
-static inline void poly_copy(poly_t *target, const poly_t *source) {
+static inline void poly_copy(poly_t* target, const poly_t* source) {
     memcpy(target->coeffs, source->coeffs, KYBER_N * sizeof(int16_t));
 }
 
