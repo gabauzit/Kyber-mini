@@ -3,14 +3,10 @@
 
 /**
  * @file consts.h
- * @brief Constantes de Kyber
+ * @brief Constants and Kyber parameters
  * @author Gabriel Abauzit
  *
  */
-
-#include <stdint.h>
-#include <stddef.h>
-
 
 #define KYBER_N 256
 #define KYBER_Q 3329

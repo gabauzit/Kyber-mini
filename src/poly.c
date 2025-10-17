@@ -1,53 +1,50 @@
 /**
- * @file poly.c
- * @brief Impl�mentation du type poly_t et de ses op�rations usuelles
+ * @file poly.h
+ * @brief Implementation of polynomials in R_q
  * @author Gabriel Abauzit
- *
- **/
+ */
 
 #include "poly.h"
 
- /***********************/
- /* OPERATIONS DANS R_q */
- /***********************/
+/***********************/
+/* UTILITARY FUNCTIONS */
+/***********************/
 
- // ATTENTION : pour des raisons d'optimisation, on ne r�duit pas les coefficients apr�s chaque calcul, ceci nous expose � un d�bordement du type 16int_t.
- //             Si les coefficients sont pr�suppos�s r�duits, on peut effectuer 8 additions / soustractions de fa�on s�re, au-del� les calculs peuvent �tre fauss�s
-
-void poly_add(poly_t* r, const poly_t* a, const poly_t* b) {
+/**
+ * @brief Sets all coefficients to 0
+ * @param f
+ */
+void poly_zero(poly_t* f) {
     int i;
+    volatile int16_t* ptr = f->coeffs; // volatile to prevent an optimisation of compiler, important when freeing a memory space with poly_secure_free;
 
     for (i = 0; i < KYBER_N; i++) {
-        r->coeffs[i] = a->coeffs[i] + b->coeffs[i];
+        ptr[i] = 0;
     }
 }
 
-void poly_sub(poly_t* r, const poly_t* a, const poly_t* b) {
+/**
+ * @brief Checks if the coefficients are in their canonical form, that is in [-(q-1)/2,(q-1)/2]
+ *
+ * @param f
+ * @return 0 if valid, 1 otherwise
+ */
+int poly_is_valid(const poly_t* f) {
     int i;
+    int is_valid = 1;
+    int16_t temp;
 
     for (i = 0; i < KYBER_N; i++) {
-        r->coeffs[i] = a->coeffs[i] - b->coeffs[i];
+        temp = f->coeffs[i]; // REMPLACER PAR f->coeffs[i] + (KYBER_Q >> 1)
+        is_valid &= (temp >= 0) & (temp < KYBER_Q); // A CHANGER, ON CONSIDERE QUE LA FORME CANONIQUE EST DANS [-(q-1)/2,(q-1)/2]
     }
+
+    return 1 - is_valid;
 }
 
-void poly_mult(poly_t* r, poly_t* a, poly_t* b) {
-    poly_to_montgomery(a);
-    poly_to_montgomery(b);
-
-    NTT(a);
-    NTT(b);
-    MultiplyNTT(r, a, b);
-    NTT_inv(r);
-
-    poly_from_montgomery(r);
-    poly_from_montgomery(a);
-    poly_from_montgomery(b);
-
-    poly_reduce(r);
-    poly_reduce(a);
-    poly_reduce(b);
-}
-
+/**
+ * @brief Reduces all the coefficients into their canonical form i.e in [-(q-1)/2,(q-1)/2]
+ */
 void poly_reduce(poly_t* f) {
     int i;
 
@@ -56,30 +53,13 @@ void poly_reduce(poly_t* f) {
     }
 }
 
-/*************************/
-/* Fonctions utilitaires */
-/*************************/
-
-void poly_zero(poly_t* f) {
-    int i;
-
-    for (i = 0; i < KYBER_N; i++) {
-        f->coeffs[i] = 0;
-    }
-}
-
-int poly_is_valid(const poly_t* f) {
-    int i;
-    int is_valid = 1;
-
-    for (i = 0; i < KYBER_N; i++) {
-        int16_t c = f->coeffs[i];
-        is_valid &= (c >= 0) & (c < KYBER_Q);
-    }
-
-    return is_valid;
-}
-
+/**
+ * @brief Checks equality between two polynomials in constant time
+ * @details The polynomial entries should be in their canonical form
+ * @param f
+ * @param g
+ * @return 0 if f = g, 1 otherwise
+ */
 int poly_equal(const poly_t* f, const poly_t* g) {
     int i;
     int are_equal = 1;
@@ -88,15 +68,110 @@ int poly_equal(const poly_t* f, const poly_t* g) {
         are_equal &= (f->coeffs[i] == g->coeffs[i]);
     }
 
-    return are_equal;
+    return 1 - are_equal;
 }
 
-void poly_secure_free(poly_t *f) {
-    if (f == NULL) return;
+/**
+ * @brief Safely frees up memory space
+ * @param ptr points to the pointer of the memory space to free
+ */
+void poly_secure_free(poly_t** ptr) {
+    if (ptr == NULL || *ptr == NULL) return;
 
-    volatile int16_t* ptr = f->coeffs;
-    for (i = 0; i < KYBER_N; i++)
-        ptr[i] = 0;
+    poly_zero(*ptr); 
+    free(*ptr);
+    *ptr = NULL;
+} 
 
-    free(f);
+/**
+ * @brief Copies a polynomial
+ * @param target
+ * @param source
+ */
+void poly_copy(poly_t* target, const poly_t* source) {
+    memcpy(target->coeffs, source->coeffs, KYBER_N * sizeof(int16_t));
+}
+
+/********************************/
+/* MONTGOMERY REDUCTIONS IN R_q */
+/********************************/
+
+/**
+ * @brief Sends all the coefficients into Montgomery domain
+ * @param f
+ */
+void poly_to_montgomery(poly_t* f) {
+    int i;
+
+    for (i = 0; i < KYBER_N; i++) {
+        f->coeffs[i] = fqmul(f->coeffs[i], 1353); // a * R = (a * R^2) * R^{-1}, since R = 2^16, we have R^2 = 1353 (mod q)
+    }
+}
+
+/**
+ * @brief Applies Montgomery reduction to all the coefficients
+ * @param f
+ */
+void poly_from_montgomery(poly_t* f) {
+    int i;
+
+    for (i = 0; i < KYBER_N; i++) {
+        f->coeffs[i] = montgomery_reduce(f->coeffs[i]);
+    }
+}
+
+/********************************/
+/* ARITHMETIC OPERATIONS IN R_q */
+/********************************/
+
+/**
+ * @brief Addition in R_q
+ * @param r[out]
+ * @param a[in]
+ * @param b[in]
+ */
+void poly_add(poly_t* r, const poly_t* a, const poly_t* b) {
+    int i;
+
+    for (i = 0; i < KYBER_N; i++) {
+        r->coeffs[i] = barrett_reduce(a->coeffs[i] + b->coeffs[i]);
+    }
+}
+
+/**
+ * @brief Subtraction in R_q
+ * @param r[out]
+ * @param a[in]
+ * @param b[in]
+ */
+void poly_sub(poly_t* r, const poly_t* a, const poly_t* b) {
+    int i;
+
+    for (i = 0; i < KYBER_N; i++) {
+        r->coeffs[i] = barrett_reduce(a->coeffs[i] - b->coeffs[i]);
+    }
+}
+
+/**
+ * @brief Fast multiplication in R_q using NTT
+ * @param r[out] is returned in its canonical form
+ * @param a[in]
+ * @param b[in]
+ */
+void poly_mult(poly_t* r, const poly_t* a, const poly_t* b) {
+    poly_t a_copy, b_copy;
+
+    poly_copy(&a_copy, a);
+    poly_copy(&b_copy, b);
+
+    //poly_to_montgomery(&a_copy);
+    //poly_to_montgomery(&b_copy);
+
+    NTT(a_copy.coeffs);
+    NTT(b_copy.coeffs);
+    NTT_multiply(r->coeffs, a_copy.coeffs, b_copy.coeffs);
+    NTT_inv(r->coeffs);
+
+    //poly_from_montgomery(r);
+    poly_reduce(r);
 }

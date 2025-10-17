@@ -1,5 +1,8 @@
 ﻿#include <stdio.h>
 #include <stdlib.h>
+#include "consts.h"
+#include "reduce.h"
+#include "poly.h"
 #include "ntt.h"
 
 #ifndef NBRE_ESSAIS
@@ -28,10 +31,7 @@ poly_t random_poly() {
 
 int test_NTT_valid() {
 	poly_t f = random_poly();
-
-	poly_to_montgomery(&f);
-	NTT(&f);
-	NTT_inv(&f);
+	NTT_inv(f.coeffs);
 	poly_from_montgomery(&f);
 
 	return poly_is_valid(&f);
@@ -43,12 +43,13 @@ int test_NTT_NTTinv() {
 	poly_t f = random_poly();
 	poly_t g;
 
+	poly_reduce(&f);
 	poly_copy(&g, &f);
 	
-	poly_to_montgomery(&f);
-	NTT(&f);
-	NTT_inv(&f);
-	poly_from_montgomery(&f);
+	//poly_to_montgomery(&f);
+	NTT(f.coeffs);
+	NTT_inv(f.coeffs);
+	//poly_from_montgomery(&f);
 
 	return poly_equal(&f, &g);
 }
@@ -62,15 +63,15 @@ int test_NTT_addition() {
 
 	poly_add(&sum, &a, &b);
 
-	poly_to_montgomery(&a);
-	poly_to_montgomery(&b);
+	//poly_to_montgomery(&a);
+	//poly_to_montgomery(&b);
 
-	NTT(&a);
-	NTT(&b);
+	NTT(a.coeffs);
+	NTT(b.coeffs);
 	poly_add(&sum_NTT, &a, &b);
-	NTT_inv(&sum_NTT);
-	
-	poly_from_montgomery(&sum_NTT);
+	NTT_inv(sum_NTT.coeffs);
+		
+	//poly_from_montgomery(&sum_NTT);
 
 	return poly_equal(&sum, &sum_NTT);
 }
@@ -79,7 +80,8 @@ int test_NTT_addition() {
 
 int test_NTT_multiplication() {
 	int i, j;
-	int32_t temp[KYBER_N];
+	//int32_t temp[KYBER_N];
+	int32_t tmp[2 * KYBER_N - 1] = {0};
 
 	poly_t a = random_poly();
 	poly_t b = random_poly();
@@ -88,23 +90,37 @@ int test_NTT_multiplication() {
 
 	// Produit NTT
 	
-	NTT_mult(&prod_NTT, &a, &b);
+	poly_mult(&prod_NTT, &a, &b);
 
 	// Produit naïf
 
-	for (i = 0; i < KYBER_N; i++) {
+	/*for (i = 0; i < KYBER_N; i++) {
 		temp[i] = 0;
 		for (j = 0; j <= i; j++) {
-			temp[i] += (int32_t)a.coeffs[j] * b.coeffs[i - j];
+			temp[i] = barrett_reduce((int32_t)temp[i] + a.coeffs[j] * b.coeffs[i - j]);
 		}
 		for (j = i + 1; j < KYBER_N; j++) {
-			temp[i] -= (int32_t)a.coeffs[j] * b.coeffs[KYBER_N + i - j];
+			temp[i] = barrett_reduce((int32_t)temp[i] - a.coeffs[j] * b.coeffs[KYBER_N + i - j]);
 		}
-		temp[i] %= KYBER_Q;
-		if (temp[i] < 0) temp[i] += KYBER_Q;
-		prod_naif.coeffs[i] = barrett_reduce((int16_t)temp[i]);
-	}
 	
+		prod_naif.coeffs[i] = (int16_t)temp[i];
+	}
+	*/
+
+	for (i = 0; i < KYBER_N; i++) {
+        for (j = 0; j < KYBER_N; j++) {
+            tmp[i + j] += (int32_t)a.coeffs[i] * b.coeffs[j];
+        }
+    }
+
+	for (i = KYBER_N; i < 2 * KYBER_N - 1; i++) {
+        tmp[i - KYBER_N] -= tmp[i];  // car x^256 ≡ -1 mod (x^256 + 1)
+    }
+
+	for (i = 0; i < KYBER_N; i++) {
+        prod_naif.coeffs[i] = barrett_reduce(tmp[i]);
+    }
+
 	return poly_equal(&prod_naif, &prod_NTT);
 }
 
@@ -120,7 +136,7 @@ int test_NTT_zero() {
 	poly_zero(&f);
 	poly_zero(&g);
 
-	NTT(&f);
+	NTT(f.coeffs);
 
 	return poly_equal(&f, &g); // Peu importe qu'on soit dans le domaine de Montgomery ou non, on doit toujours trouver 0
 }
@@ -133,7 +149,7 @@ int test_NTTinv_zero() {
 	poly_zero(&f);
 	poly_zero(&g);
 
-	NTT_inv(&f);
+	NTT_inv(f.coeffs);
 
 	return poly_equal(&f, &g); // Peu importe qu'on soit dans le domaine de Montgomery ou non, on doit toujours trouver 0
 }
@@ -152,10 +168,10 @@ int test_NTT_monome() {
 	f.coeffs[i] = c;
 	poly_copy(&g, &f);
 
-	poly_to_montgomery(&f);
-	NTT(&f);
-	NTT_inv(&f);
-	poly_from_montgomery(&f);
+	//poly_to_montgomery(&f);
+	NTT(f.coeffs);
+	NTT_inv(f.coeffs);
+	//poly_from_montgomery(&f);
 
 	return poly_equal(&f, &g);
 }
@@ -197,13 +213,8 @@ int main() {
 	success = 1;
 
 	for (i = 0; i < NBRE_ESSAIS; i++) {
-		if (i % SUIVI_ESSAIS == 0) {
-			printf("  Progression: %i%%\r", i / SUIVI_ESSAIS);
-			fflush(stdout);
-		}
 		success &= test_NTT_valid();
 	}
-	printf("  Progression: 100%%\n");
 
 	afficher_resultat(1, success, &test_success);
 	test_total++;
@@ -213,13 +224,8 @@ int main() {
 	success = 1;
 
 	for (i = 0; i < NBRE_ESSAIS; i++) {
-		if (i % SUIVI_ESSAIS == 0) {
-			printf("  Progression: %i%%\r", i / SUIVI_ESSAIS);
-			fflush(stdout);
-		}
 		success &= test_NTT_NTTinv();
 	}
-	printf("  Progression: 100%%\n");
 
 	afficher_resultat(2, success, &test_success);
 	test_total++;
@@ -229,13 +235,8 @@ int main() {
 	success = 1;
 
 	for (i = 0; i < NBRE_ESSAIS; i++) {
-		if (i % SUIVI_ESSAIS == 0) {
-			printf("  Progression: %i%%\r", i / SUIVI_ESSAIS);
-			fflush(stdout);
-		}
 		success &= test_NTT_addition();
 	}
-	printf("  Progression: 100%%\n");
 
 	afficher_resultat(3, success, &test_success);
 	test_total++;
@@ -245,26 +246,19 @@ int main() {
 	success = 1;
 
 	for (i = 0; i < NBRE_ESSAIS; i++) {
-		if (i % SUIVI_ESSAIS == 0) {
-			printf("  Progression: %i%%\r", i / SUIVI_ESSAIS);
-			fflush(stdout);
-		}
 		success &= test_NTT_multiplication();
 	}
-	printf("  Progression: 100%%\n");
 
 	afficher_resultat(4, success, &test_success);
 	test_total++;
 
 	// TEST 5
 
-	printf("  Progression: 100%%\n");
 	afficher_resultat(5, test_NTT_zero(), &test_success);
 	test_total++;
 
 	// TEST 6
 
-	printf("  Progression: 100%%\n");	
 	afficher_resultat(6, test_NTTinv_zero(), &test_success);
 	test_total++;
 
@@ -273,22 +267,17 @@ int main() {
 	success = 1;
 
 	for (i = 0; i < NBRE_ESSAIS; i++) {
-		if (i % SUIVI_ESSAIS == 0) {
-			printf("  Progression: %i%%\r", i / SUIVI_ESSAIS);
-			fflush(stdout);
-		}
 		success &= test_NTT_monome();
 	}
-	printf("  Progression: 100%%\n");
 
 	afficher_resultat(7, success, &test_success);
 	test_total++;
 	
 	// Résumé final
 
-	printf("\n╔═══════════════════════════════════════════════════╗\n");
-	printf("║              RÉSUMÉ FINAL                         ║\n");
-	printf("╚═══════════════════════════════════════════════════╝\n");
+	printf("\n╔════════════════════════════════════════╗\n");
+	printf("║              RÉSUMÉ FINAL              ║\n");
+	printf("╚════════════════════════════════════════╝\n");
 	printf("Tests réussis: %i/%i\n", test_success, test_total);
 
 	if (test_success == test_total) {

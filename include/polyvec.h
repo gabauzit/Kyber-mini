@@ -65,9 +65,6 @@ void polyvec_zero(polyvec_t *f);
 
 int polyvec_is_valid(const polyvec_t* f);
 
-void polyvec_secure_free(polyvec_t* f);
-}
-
 /**
  * @brief Copie un vecteur de R_q
  *
@@ -83,15 +80,5 @@ static inline void polyvec_copy(polyvec_t *target, const polyvec_t *source) {
 		poly_copy(&target->vec[i], &source->vec[i]);
 	}
 }
-
-/* A FAIREEEEEEEEEEEEEEEEEEEEE */
-
-// Algorithme 13
-
-void polyvec_NTT(polyvec_t* f);
-
-void polyvec_mult(polyvec_t* r, polyvec_t* A[KYBER_K], polyvec_t* v); // Calcule le produit matriciel A*v
-
-void polyvec_to_bytes(uint8_t* r, polyvec_t* f);
 
 #endif
