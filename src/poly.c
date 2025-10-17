@@ -35,7 +35,7 @@ int poly_is_valid(const poly_t* f) {
     int16_t temp;
 
     for (i = 0; i < KYBER_N; i++) {
-        temp = f->coeffs[i]; // REMPLACER PAR f->coeffs[i] + (KYBER_Q >> 1)
+        temp = f->coeffs[i] + (KYBER_Q >> 1); // REMPLACER PAR f->coeffs[i] + (KYBER_Q >> 1)
         is_valid &= (temp >= 0) & (temp < KYBER_Q); // A CHANGER, ON CONSIDERE QUE LA FORME CANONIQUE EST DANS [-(q-1)/2,(q-1)/2]
     }
 
@@ -62,18 +62,22 @@ void poly_reduce(poly_t* f) {
  */
 int poly_equal(const poly_t* f, const poly_t* g) {
     int i;
-    int are_equal = 1;
+    int16_t are_equal = 0;
+    int16_t temp;
 
     for (i = 0; i < KYBER_N; i++) {
-        are_equal &= (f->coeffs[i] == g->coeffs[i]);
+        // To test equality, we first need to ensure that all the mod-q coefficients are in [-(q-1)/2,(q-1)/2]
+        // barrett_reduce ensures this when its entry lies within a reasonable range around 0.
+        temp = barrett_reduce(f->coeffs[i] - g->coeffs[i]);
+        are_equal |= temp;
     }
 
-    return 1 - are_equal;
+    return (are_equal != 0);
 }
 
 /**
  * @brief Safely frees up memory space
- * @param ptr points to the pointer of the memory space to free
+ * @param ptr points to the pointer to the memory space to free
  */
 void poly_secure_free(poly_t** ptr) {
     if (ptr == NULL || *ptr == NULL) return;
@@ -164,14 +168,14 @@ void poly_mult(poly_t* r, const poly_t* a, const poly_t* b) {
     poly_copy(&a_copy, a);
     poly_copy(&b_copy, b);
 
-    //poly_to_montgomery(&a_copy);
-    //poly_to_montgomery(&b_copy);
+    poly_to_montgomery(&a_copy);
+    poly_to_montgomery(&b_copy);
 
     NTT(a_copy.coeffs);
     NTT(b_copy.coeffs);
     NTT_multiply(r->coeffs, a_copy.coeffs, b_copy.coeffs);
     NTT_inv(r->coeffs);
 
-    //poly_from_montgomery(r);
+    poly_from_montgomery(r);
     poly_reduce(r);
 }
