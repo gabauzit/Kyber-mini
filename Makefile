@@ -10,11 +10,11 @@ INC_DIR = include
 TEST_DIR = tests
 BUILD_DIR = build
 
-SOURCES = $(SRC_DIR)/ntt.c $(SRC_DIR)/poly.c $(SRC_DIR)/polyvec.c
-HEADERS = $(INC_DIR)/ntt.h $(INC_DIR)/poly.h $(INC_DIR)/polyvec.h
+SOURCES = $(SRC_DIR)/ntt.c $(SRC_DIR)/poly.c
+HEADERS = $(INC_DIR)/ntt.h $(INC_DIR)/poly.h
 TEST_SOURCES = $(TEST_DIR)/test_ntt.c
 
-OBJECTS = $(BUILD_DIR)/ntt.o $(BUILD_DIR)/poly.o $(BUILD_DIR)/polyvec.o
+OBJECTS = $(BUILD_DIR)/ntt.o $(BUILD_DIR)/poly.o
 TEST_OBJECTS = $(BUILD_DIR)/test_ntt.o
 
 TEST_EXEC = test_ntt

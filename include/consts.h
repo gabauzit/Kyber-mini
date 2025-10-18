@@ -40,6 +40,6 @@
 #define MONTGOMERY_INV 3327 // -q^-1 mod 2^16
 #define MONTGOMERY_QINV 62209 // q^-1 mod 2^16 */
 
-#define BARRETT_FACTOR 20159
+#define BARRETT_FACTOR 20159 // nearest integer to 2^26/q  ((1<<26) + KYBER_Q/2)/KYBER_Q;
 
 #endif

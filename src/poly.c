@@ -24,8 +24,7 @@ void poly_zero(poly_t* f) {
 }
 
 /**
- * @brief Checks if the coefficients are in their canonical form, that is in [-(q-1)/2,(q-1)/2]
- *
+ * @brief Checks if the coefficients are in their canonical form, that is in [-(q-1)/2,(q-1)/2], in constant time
  * @param f
  * @return 0 if valid, 1 otherwise
  */
@@ -35,8 +34,8 @@ int poly_is_valid(const poly_t* f) {
     int16_t temp;
 
     for (i = 0; i < KYBER_N; i++) {
-        temp = f->coeffs[i] + (KYBER_Q >> 1); // REMPLACER PAR f->coeffs[i] + (KYBER_Q >> 1)
-        is_valid &= (temp >= 0) & (temp < KYBER_Q); // A CHANGER, ON CONSIDERE QUE LA FORME CANONIQUE EST DANS [-(q-1)/2,(q-1)/2]
+        temp = f->coeffs[i] + (KYBER_Q >> 1);
+        is_valid &= (temp >= 0) & (temp < KYBER_Q);
     }
 
     return 1 - is_valid;
@@ -163,19 +162,23 @@ void poly_sub(poly_t* r, const poly_t* a, const poly_t* b) {
  * @param b[in]
  */
 void poly_mult(poly_t* r, const poly_t* a, const poly_t* b) {
-    poly_t a_copy, b_copy;
+    poly_t* a_copy = (poly_t*)malloc(sizeof(poly_t));
+    poly_t* b_copy = (poly_t*)malloc(sizeof(poly_t));
 
-    poly_copy(&a_copy, a);
-    poly_copy(&b_copy, b);
+    poly_copy(a_copy, a);
+    poly_copy(b_copy, b);
 
-    poly_to_montgomery(&a_copy);
-    poly_to_montgomery(&b_copy);
+    poly_to_montgomery(a_copy);
+    poly_to_montgomery(b_copy);
 
-    NTT(a_copy.coeffs);
-    NTT(b_copy.coeffs);
-    NTT_multiply(r->coeffs, a_copy.coeffs, b_copy.coeffs);
+    NTT(a_copy->coeffs);
+    NTT(b_copy->coeffs);
+    NTT_multiply(r->coeffs, a_copy->coeffs, b_copy->coeffs);
+
+    poly_secure_free(&a_copy);
+    poly_secure_free(&b_copy);
+
     NTT_inv(r->coeffs);
-
     poly_from_montgomery(r);
     poly_reduce(r);
 }

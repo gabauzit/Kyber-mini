@@ -35,10 +35,9 @@ int test_NTT_NTTinv() {
 	poly_reduce(&f);
 	poly_copy(&g, &f);
 	
-	//poly_to_montgomery(&f);
+	// No need to convert into Montgomery domain since f, g are chosen at random
 	NTT(f.coeffs);
 	NTT_inv(f.coeffs);
-	//poly_from_montgomery(&f);
 
 	return poly_equal(&f, &g);
 }
@@ -69,6 +68,36 @@ int test_NTT_addition() {
 // TEST 3 : NTT(a * b) = NTT(a) * NTT(b)
 
 int test_NTT_multiplication() {
+	poly_t a = random_poly();
+    poly_t b = random_poly();
+    poly_t prod_naive;
+    poly_t prod_ntt;
+    int32_t tmp[2 * KYBER_N - 1] = {0};
+
+    // Produit naïf négacyclique
+    for (int i = 0; i < KYBER_N; i++)
+        for (int j = 0; j < KYBER_N; j++)
+            tmp[i + j] += (int32_t)a.coeffs[i] * b.coeffs[j];
+
+    for (int i = KYBER_N; i < 2 * KYBER_N - 1; i++)
+        tmp[i - KYBER_N] -= tmp[i];
+
+    for (int i = 0; i < KYBER_N; i++)
+        prod_naive.coeffs[i] = barrett_reduce(tmp[i]);
+
+    // Produit via NTT
+    poly_mult(&prod_ntt, &a, &b);
+
+    // Affichage pour debug
+    for (int i = 0; i < KYBER_N; i++)
+        printf("deg %3d: naive=%4d, NTT=%4d\n", i, prod_naive.coeffs[i], prod_ntt.coeffs[i]);
+
+    // Comparaison avec poly_equal
+    return poly_equal(&prod_naive, &prod_ntt);
+}
+
+int test_NTT_multiplication_bis() {
+	
 	int i, j;
 	//int32_t temp[KYBER_N];
 	int32_t tmp[2 * KYBER_N - 1] = {0};
@@ -108,9 +137,16 @@ int test_NTT_multiplication() {
     }
 
 	for (i = 0; i < KYBER_N; i++) {
-        prod_naif.coeffs[i] = barrett_reduce(tmp[i]);
-    }
+    	prod_naif.coeffs[i] = barrett_reduce(tmp[i]);
+	}
 
+	poly_reduce(&prod_naif);
+	poly_reduce(&prod_NTT);
+	/*
+	for (int h = 0; h < KYBER_N; h++) {
+		printf("degré %i, a = %i, b = %i, naif = %i, NTT = %i\n", h, (int)a.coeffs[h], (int)b.coeffs[h], (int)prod_naif.coeffs[h], (int)prod_NTT.coeffs[h]);
+	}
+	*/
 	return poly_equal(&prod_naif, &prod_NTT);
 }
 
@@ -216,12 +252,12 @@ int main() {
 
 	// TEST 4
 
-	display_results(5, test_NTT_zero(), &test_success);
+	display_results(4, test_NTT_zero(), &test_success);
 	test_total++;
 
 	// TEST 5
 
-	display_results(6, test_NTTinv_zero(), &test_success);
+	display_results(5, test_NTTinv_zero(), &test_success);
 	test_total++;
 
 /*****************/

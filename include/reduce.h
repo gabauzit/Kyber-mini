@@ -16,13 +16,26 @@
  * @param int16_t a Input integer to be reduced 
  * @return A 16 bit integer that is the mod-q reduction of a in [-(q-1)/2,(q-1)/2]
  */
-static inline int16_t barrett_reduce(int16_t a) {
+/*static inline int16_t barrett_reduce(int16_t a) {
   int16_t t;
-  const int16_t v = ((1<<26) + KYBER_Q/2)/KYBER_Q;
+  const int16_t v = BARRETT_FACTOR;
 
   t  = ((int32_t)v*a + (1<<25)) >> 26;
   t *= KYBER_Q;
   return a - t;
+} */
+
+static inline int16_t barrett_reduce(int16_t a) {
+    int32_t r = a % KYBER_Q; // reste modulo q
+
+    // recaler dans l'intervalle centré
+    if (r > (KYBER_Q - 1) / 2) {
+        r -= KYBER_Q;
+    } else if (r < -(KYBER_Q - 1) / 2) {
+        r += KYBER_Q;
+    }
+
+    return (int16_t)r;
 }
 
 /**
@@ -48,7 +61,6 @@ static inline int16_t montgomery_reduce(int32_t a) {
  */
 static inline int16_t fqmul(int16_t a, int16_t b) {
     return montgomery_reduce((int32_t)a * b);
-    //return barrett_reduce((int32_t)a*b);
 }
 
 #endif
