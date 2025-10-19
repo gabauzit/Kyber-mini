@@ -12,6 +12,7 @@
 #include "consts.h"
 #include "reduce.h"
 #include "ntt.h"
+#include "encode.h"
 
  /**
   * @brief Polynomial of R_q
@@ -55,5 +56,14 @@ void poly_add(poly_t* r, const poly_t* a, const poly_t* b);
 void poly_sub(poly_t* r, const poly_t* a, const poly_t* b);
 
 void poly_mult(poly_t* r, const poly_t* a, const poly_t* b);
+
+/*********************************/
+/* COMPRESSION AND DECOMPRESSION */
+/*********************************/
+
+void poly_compress(poly_t* f, const unsigned d);
+
+void poly_decompress(poly_t* f, const unsigned d);
+
 
 #endif

@@ -9,20 +9,20 @@
 /**
  * @brief Outputs a pseudorandom NTT
  * @details FIPS 203 Algorithm 7
- * @param r[out] array of length 256
- * @param seed[in] byte array of size 34, corresponds to a 32-byte array and two indices
+ * @param[out] r array of length 256
+ * @param[in] seed byte array of size 34, corresponds to a 32-byte array and two indices
  */
 void sample_ntt(int16_t* r, const uint8_t* seed) {
     int j;
     uint8_t C[3];
     uint16_t d1, d2;
     uint16_t low_bits;
-    XOF_ctx *ctx;
+    XOF_ctx_t *ctx;
     
     j = 0;
     low_bits = (1 << 5) - 1;
 
-    ctx = (XOF_ctx*)malloc(sizeof(XOF_ctx));
+    ctx = (XOF_ctx_t*)malloc(sizeof(XOF_ctx_t));
     XOF_init(ctx);
     XOF_absorb(ctx, seed);
 
@@ -41,16 +41,16 @@ void sample_ntt(int16_t* r, const uint8_t* seed) {
     // Clean sensitive data
     d1 = 0;
     d2 = 0;
-    memset(ctx, 0, sizeof(XOF_ctx));
+    memset(ctx, 0, sizeof(XOF_ctx_t));
     free(ctx);
 }
 
 /**
  * @brief Outputs a pseudorandom sample from the CBD_eta distribution on R_q
  * @details FIPS 203 Algorithm 8
- * @param r[out] array of length 256
- * @param seed[in] byte array of size 64 * eta
- * @param eta[in]
+ * @param[out] r array of length 256
+ * @param[in] seed byte array of size 64 * eta
+ * @param[in] eta
  */
 void sample_poly_cbd(int16_t* r, const uint8_t* seed, const uint8_t eta) {
     // It is also possible to read the bits directly from the seed without calling bytes_to_bits().

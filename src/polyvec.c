@@ -129,6 +129,45 @@ void polyvec_ntt_inv(polyvec_t* f) {
     }
 }
 
+// The following two functions take place inside the NTT domain.
+// Scalar products and matrix-vector products always take place inside the NTT domain in Kyber
+
+/**
+ * @brief Computes the scalar product of two vectors inside NTT domain
+ * 
+ * @param r[out]
+ * @param a[in]
+ * @param b[in]
+ */
+void polyvec_ntt_scalar_product(poly_t* r, const polyvec_t* a, const polyvec_t* b) {
+    int i;
+    poly_t temp;
+
+    poly_zero(r);
+    
+    for (i = 0; i < KYBER_K; i++) {
+        NTT_multiply(temp.coeffs, a->vec[i].coeffs, b->vec[i].coeffs);
+        poly_add(r, r, &temp);
+    }
+
+    poly_zero(&temp); // At the end of the loop, temp contains a->vec[KYBER_K-1] * b->vec[KYBER_K-1], if a and b are private we shall erase this value
+}
+
+/**
+ * @brief Computes a matrix/vector product inside NTT domain
+ * 
+ * @param r[out]
+ * @param A[in] matrix of size KYBER_K * KYBER_K
+ * @param v[in] vector applied to A, of size KYBER_K
+ */
+void polyvec_ntt_product(polyvec_t* r, const polyvec_t** A, const polyvec_t* v) {
+    int i;
+
+    for (i = 0; i < KYBER_K; i++) {
+        polyvec_ntt_scalar_product(&r->vec[i], A[i], v);
+    }
+}
+
 /*******************************/
 /* VECTORIAL OPERATIONS IN R_q */
 /*******************************/
@@ -165,37 +204,80 @@ void polyvec_sub(polyvec_t *r, const polyvec_t *a, const polyvec_t *b) {
 }
 
 /**
- * @brief Computes the scalar product of two vectors
- * 
- * @param r[out]
- * @param a[in]
- * @param b[in]
+ * @brief Replaces the square matrix A of order KYBER_K by its transpose
+ * @param A
  */
-void polyvec_scalar_product(poly_t* r, const polyvec_t* a, const polyvec_t* b) {
-    int i;
+void polyvec_transpose(polyvec_t** A) {
+    int i, j;
     poly_t temp;
 
-    poly_zero(r);
+    for (i = 0; i < KYBER_K; i++) {
+        for (j = i+1; j < KYBER_K; j++) {
+            temp = A[i]->vec[j];
+            A[i]->vec[j] = A[j]->vec[i];
+            A[j]->vec[i] = temp;
+        }
+    }
+}
+
+/****************/
+/* BYTES ENCODE */
+/****************/
+
+// REMPLACER LES 32 ETC PAR DES MACROS POLYVEC_TO_BYTES(d) ETC !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+/**
+ * @brief Encodes a polyvec_t to a byte array of length 32 * d * KYBER_K, the encodings of the entries of the polyvec_t are concatenated in the output byte array
+ * @param[out] bytes
+ * @param[in] f
+ * @param[in] d 
+ */
+void polyvec_byte_encode(uint8_t* bytes, const polyvec_t* f, const unsigned d) {
+    int i;
     
     for (i = 0; i < KYBER_K; i++) {
-        poly_mult(&temp, &a->vec[i], &b->vec[i]);
-        poly_add(r, r, &temp);
+        byte_encode(bytes + 32*d*i, f->vec[i].coeffs, d);
     }
-
-    poly_zero(&temp); // At the end of the loop, temp contains a->vec[KYBER_K-1] * b->vec[KYBER_K-1], if a and b are private we shall erase this value
 }
 
 /**
- * @brief Computes a matrix/vector product
- * 
- * @param r[out]
- * @param A[in] matrix of size KYBER_K * KYBER_K
- * @param v[in] vector applied to A, of size KYBER_K
+ * @brief Decodes a byte array of length 32 * d * KYBER_K to a polyvec_t, the decodings of the contiguous 32 bytes blocks of the byte array are the entries of the polyvec_t output
+ * @param[out] f
+ * @param[in] bytes
+ * @param[in] d 
  */
-void polyvec_product(polyvec_t* r, const polyvec_t** A, const polyvec_t* v) {
+void polyvec_byte_decode(polyvec_t* f, const uint8_t* bytes, const unsigned d) {
     int i;
 
     for (i = 0; i < KYBER_K; i++) {
-        polyvec_scalar_product(&r->vec[i], A[i], v);
+        byte_decode(f->vec[i].coeffs, bytes + 32*d*i, d);
+    }
+}
+
+/*********************************/
+/* COMPRESSION AND DECOMPRESSION */
+/*********************************/
+
+/**
+ * @brief Compresses all the coefficients of the entries of f
+ * @param f 
+ */
+void polyvec_compress(polyvec_t* f, const unsigned d) {
+    int i;
+
+    for (i = 0; i < KYBER_K; i++) {
+        f->vec[i] = compress(&f->vec[i], d);
+    }
+}
+
+/**
+ * @brief Decompresses all the coefficients of the entries of f
+ * @param f 
+ */
+void polyvec_decompress(polyvec_t* f, const unsigned d) {
+    int i;
+
+    for (i = 0; i < KYBER_K; i++) {
+        f->vec[i] = poly_decompress(&f->vec[i], d);
     }
 }

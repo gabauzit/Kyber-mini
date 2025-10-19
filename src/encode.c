@@ -14,8 +14,8 @@
  * @brief Converts a bit array into an array of bytes
  * @details FIPS 203 Algorithm 3
  * 
- * @param bytes[out] bytes array of size l
- * @param bits[in] bits array of size 8 * l
+ * @param[out] bytes bytes array of size l
+ * @param[in] bits bits array of size 8 * l
  * @param l
  */
 void bits_to_bytes(uint8_t* bytes, const uint8_t* bits, unsigned l) {
@@ -36,8 +36,8 @@ void bits_to_bytes(uint8_t* bytes, const uint8_t* bits, unsigned l) {
  * @brief Converts a bytes array into an array of bits
  * @details FIPS 203 Algorithm 4
  * 
- * @param bits[out] bits array of size 8 * l
- * @param bytes[in] bytes array of size l
+ * @param[out] bits bits array of size 8 * l
+ * @param[in] bytes bytes array of size l
  * @param l
  */
 void bytes_to_bits(uint8_t* bits, const uint8_t* bytes, unsigned l) {
@@ -60,7 +60,7 @@ void bytes_to_bits(uint8_t* bits, const uint8_t* bytes, unsigned l) {
  * 
  * @param[out] bytes byte array of size 32 * d
  * @param[in] F int16_t array of size 256
- * @param d should be between 1 and 12
+ * @param[in] d should be between 1 and 12
  */
 void byte_encode(uint8_t* bytes, const int16_t* F, const unsigned d) {
     int i, j;

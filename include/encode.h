@@ -21,7 +21,7 @@ void bytes_to_bits(uint8_t* bits, const uint8_t* bytes, unsigned l);
 /* BYTES ENCODE */
 /****************/
 
-void byte_encode(uint8_t bytes, const int16_t* F, const unsigned d);
+void byte_encode(uint8_t* bytes, const int16_t* F, const unsigned d);
 
 void byte_decode(int16_t* F, const uint8_t* bytes, const unsigned d);
 

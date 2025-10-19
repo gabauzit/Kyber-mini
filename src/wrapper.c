@@ -8,12 +8,12 @@
 
 /**
  * @brief Pseudo Random Function
- * @details Assign the value SHAKE256(s||b, 8*64*eta) to the variable pointed to by r
+ * @details Assigns the value SHAKE256(s||b, 8*64*eta) to the variable pointed to by r
  * 
- * @param r[out]
- * @param eta[in]
- * @param s[in]
- * @param b[in]
+ * @param[out] r
+ * @param[in] eta
+ * @param[in] s
+ * @param[in] b
  */
 void PRF(uint8_t* r, const uint8_t eta, const uint8_t* s, const uint8_t b) {
 
@@ -23,8 +23,8 @@ void PRF(uint8_t* r, const uint8_t eta, const uint8_t* s, const uint8_t b) {
  * @brief Hash function
  * @details Assigns the value SHA3-256(s) to the variable pointed to by r
  * 
- * @param r[out]
- * @param s[in]
+ * @param[out] r
+ * @param[in] s
  */
 void H(uint8_t* r, const uint8_t* s) {
 
@@ -34,8 +34,8 @@ void H(uint8_t* r, const uint8_t* s) {
  * @brief Hash function
  * @details Assigns the value SHAKE256(s, 8*32) to the variable pointed to by r
  * 
- * @param r[out]
- * @param s[in]
+ * @param[out] r
+ * @param[in] s
  */
 void J(uint8_t* r, const uint8_t* s) {
 
@@ -45,8 +45,8 @@ void J(uint8_t* r, const uint8_t* s) {
  * @brief Hash function
  * @details Assigns the value SHA3-512(c) to the variable pointed to by r
  * 
- * @param r[out]
- * @param s[in]
+ * @param[out] r
+ * @param[in] s
  */
 void G(uint8_t* r, const uint8_t* c) {
     

@@ -11,7 +11,7 @@
 
 typedef struct {
     shake128ctx ctx; // LE TYPE UTILISÉ PAR PQClean, il faut include "fips202.h"
-} XOF_ctx;
+} XOF_ctx_t;
 
 
 void PRF(uint8_t* r, const uint8_t eta, const uint8_t* s, const uint8_t b);
@@ -28,10 +28,10 @@ void G(uint8_t* r, const uint8_t* c);
 
 // IL FAUT PLUS D'ARGUMENTS DANS CHACUNE DES FONCTIONS
 
-void XOF_init(XOF_ctx* ctx);
+void XOF_init(XOF_ctx_t* ctx);
 
-void XOF_absorb(XOF_ctx* ctx, const uint8_t* seed);
+void XOF_absorb(XOF_ctx_t* ctx, const uint8_t* seed);
 
-void XOF_squeeze(uint8_t* output, XOF_ctx* ctx, const unsigned len);
+void XOF_squeeze(uint8_t* output, XOF_ctx_t* ctx, const unsigned len);
 
 #endif

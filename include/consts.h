@@ -1,12 +1,16 @@
-﻿#ifndef CONSTS_H
-#define CONSTS_H
-
-/**
+﻿/**
  * @file consts.h
  * @brief Constants and Kyber parameters
  * @author Gabriel Abauzit
  *
  */
+
+#ifndef CONSTS_H
+#define CONSTS_H
+
+/*****************************/
+/* KYBER CONSTANT PARAMETERS */
+/*****************************/
 
 #define KYBER_N 256
 #define KYBER_Q 3329
@@ -29,9 +33,9 @@
 #define KYBER_POLYBYTES 384            /* Size of encoded polynomial (12*256/8) */
 #define KYBER_POLYVECBYTES (KYBER_K * KYBER_POLYBYTES)
 
-/************************/
-/* Constantes de la NTT */
-/************************/
+/*****************/
+/* NTT CONSTANTS */
+/*****************/
 
 #define ZETA 17         // Racine primtiive 256-ème de l'unité dans Z_q
 
