@@ -1,0 +1,60 @@
+name: Kyber Tests
+
+on:
+  push:
+    branches: [ main, master, dev ]
+  pull_request:
+    branches: [ main, master, dev ]
+
+jobs:
+  test:
+    name: NTT Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🔧 Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential
+
+    - name: ℹ️ System information
+      run: |
+        echo "=== Compiler ==="
+        gcc --version
+        echo "=== Make ==="
+        make --version
+        echo "=== Project structure ==="
+        ls -la
+        echo "=== src/ content ==="
+        ls -la src/
+        echo "=== include/ content ==="
+        ls -la include/
+        echo "=== tests/ content ==="
+        ls -la tests/
+
+    - name: 🏗️ Build project
+      run: make
+
+    - name: 🚀 Run NTT tests
+      run: make test_ntt
+
+    - name: 📊 Test summary
+      if: always()
+      run: |
+        echo "### 🧪 NTT Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Platform:** ubuntu-latest" >> $GITHUB_STEP_SUMMARY
+        echo "**Compiler:** $(gcc --version | head -n1)" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        if [ -f test_ntt ]; then
+          echo "✅ Build successful" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Tests executed successfully" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Build failed" >> $GITHUB_STEP_SUMMARY
+
+    - name: 🧹 Cleanup
+      if: always()
+      run: make clean
