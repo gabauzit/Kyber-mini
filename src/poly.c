@@ -167,3 +167,31 @@ void poly_mult(poly_t* r, const poly_t* a, const poly_t* b) {
     poly_from_montgomery(r);
     poly_reduce(r);
 }
+
+/*********************************/
+/* COMPRESSION AND DECOMPRESSION */
+/*********************************/
+
+/**
+ * @brief Compresses all the coefficients of f
+ * @param f 
+ */
+void poly_compress(poly_t* f, const unsigned d) {
+    int i;
+
+    for (i = 0; i < KYBER_N; i++) {
+        f->coeffs[i] = compress(f->coeffs[i], d);
+    }
+}
+
+/**
+ * @brief Decompresses all the coefficients of f
+ * @param f 
+ */
+void poly_decompress(poly_t* f, const unsigned d) {
+    int i;
+
+    for (i = 0; i < KYBER_N; i++) {
+        f->coeffs[i] = decompress(f->coeffs[i], d);
+    }
+}

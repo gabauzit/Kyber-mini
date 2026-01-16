@@ -58,4 +58,20 @@ void polyvec_sub(polyvec_t *r, const polyvec_t *a, const polyvec_t *b);
 
 void polyvec_transpose(polyvec_t** A);
 
+/****************/
+/* BYTES ENCODE */
+/****************/
+
+void polyvec_byte_encode(uint8_t* bytes, const polyvec_t* f, const unsigned d);
+
+void polyvec_byte_decode(polyvec_t* f, const uint8_t* bytes, const unsigned d);
+
+/*********************************/
+/* COMPRESSION AND DECOMPRESSION */
+/******************************* */
+
+void polyvec_compress(polyvec_t* f, const unsigned d);
+
+void polyvec_decompress(polyvec_t* f, const unsigned d);
+
 #endif

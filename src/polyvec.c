@@ -196,3 +196,65 @@ void polyvec_transpose(polyvec_t** A) {
         }
     }
 }
+
+/****************/
+/* BYTES ENCODE */
+/****************/
+
+// REMPLACER LES 32 ETC PAR DES MACROS POLYVEC_TO_BYTES(d) ETC !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+/**
+ * @brief Encodes a polyvec_t to a byte array of length 32 * d * KYBER_K, the encodings of the entries of the polyvec_t are concatenated in the output byte array
+ * @param[out] bytes
+ * @param[in] f
+ * @param[in] d 
+ */
+void polyvec_byte_encode(uint8_t* bytes, const polyvec_t* f, const unsigned d) {
+    int i;
+    
+    for (i = 0; i < KYBER_K; i++) {
+        byte_encode(bytes + 32*d*i, f->vec[i].coeffs, d);
+    }
+}
+
+/**
+ * @brief Decodes a byte array of length 32 * d * KYBER_K to a polyvec_t, the decodings of the contiguous 32 bytes blocks of the byte array are the entries of the polyvec_t output
+ * @param[out] f
+ * @param[in] bytes
+ * @param[in] d 
+ */
+void polyvec_byte_decode(polyvec_t* f, const uint8_t* bytes, const unsigned d) {
+    int i;
+
+    for (i = 0; i < KYBER_K; i++) {
+        byte_decode(f->vec[i].coeffs, bytes + 32*d*i, d);
+    }
+}
+
+/*********************************/
+/* COMPRESSION AND DECOMPRESSION */
+/*********************************/
+
+/**
+ * @brief Compresses all the coefficients of the entries of f
+ * @param f 
+ */
+void polyvec_compress(polyvec_t* f, const unsigned d) {
+    int i;
+
+    for (i = 0; i < KYBER_K; i++) {
+        compress(&f->vec[i], d);
+    }
+}
+
+/**
+ * @brief Decompresses all the coefficients of the entries of f
+ * @param f 
+ */
+void polyvec_decompress(polyvec_t* f, const unsigned d) {
+    int i;
+
+    for (i = 0; i < KYBER_K; i++) {
+        poly_decompress(&f->vec[i], d);
+    }
+}
